@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Jogos Educativos</title>
+    <style>
+        /* Reset & estilos gerais */
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Comic Sans MS', cursive, sans-serif; }
+        body { background-color: #e6f3ff; color: #333; padding: 20px; }
+        .hidden { display:none; }
+        .container { max-width: 900px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        h1 { text-align: center; margin-bottom: 20px; color: #0066cc; }
+        button { 
+            padding: 10px 20px; 
+            margin: 5px; 
+            cursor: pointer; 
+            background-color: #4CAF50; 
+            color: white; 
+            border: none; 
+            border-radius: 5px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+        label { margin-right: 10px; font-size: 16px; }
+        
+        /* Decorações */
+        .decoration {
+            position: fixed;
+            z-index: -1;
+        }
+        .star {
+            width: 20px;
+            height: 20px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFD700"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>');
+            background-size: contain;
+        }
+        .pencil {
+            width: 30px;
+            height: 30px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234CAF50"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>');
+            background-size: contain;
+        }
+        .book {
+            width: 25px;
+            height: 25px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%236c5ce7"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>');
+            background-size: contain;
+        }
+        
+        /* Deck de cartas */
+        .deck { 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            gap: 10px; 
+            margin-top: 20px; 
+        }
+        
+        /* Jogo de memória - grid layout */
+        .memory-grid {
+            display: grid;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        
+        /* Tamanho das cartas aumentado em 50% */
+        .card { 
+            width: 210px; /* 140px * 1.5 */
+            height: 294px; /* 196px * 1.5 */
+            perspective: 1000px; 
+            cursor: pointer; 
+            margin-bottom: 10px;
+        }
+        .card-inner { 
+            position: relative; 
+            width: 100%; 
+            height: 100%; 
+            transition: transform 0.6s; 
+            transform-style: preserve-3d; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
+            border-radius: 10px;
+        }
+        
+        /* Animação de virada */
+        @keyframes flipAnimation {
+            0% { transform: rotateY(0deg); }
+            50% { transform: rotateY(90deg); }
+            100% { transform: rotateY(0deg); }
+        }
+        
+        .flip-animation {
+            animation: flipAnimation 1s ease-in-out;
+        }
+        .card.flipped .card-inner { 
+            transform: rotateY(180deg); 
+        }
+        .card-front, .card-back { 
+            position: absolute; 
+            width: 100%; 
+            height: 100%; 
+            -webkit-backface-visibility: hidden; 
+            backface-visibility: hidden; 
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .card-front { 
+            background-color: #c8e6c9; 
+            color: #333; 
+            font-size: 36px; /* Aumentado para acompanhar o tamanho da carta */
+            font-weight: bold;
+            border: 5px solid #4CAF50;
+        }
+        .card-back { 
+            background-color: #f5f5f5; 
+            color: #333; 
+            transform: rotateY(180deg); 
+            border: 5px solid #2196F3;
+        }
+        .card-image {
+            width: 80%;
+            height: auto;
+            max-height: 80%;
+            object-fit: contain;
+        }
+        .card-code {
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 5px;
+            color: #0066cc;
+        }
+        .card-name {
+            font-size: 14px;
+            margin-top: 5px;
+            text-align: center;
+            color: #333;
+        }
+        
+        /* Montes de cartas */
+        .card-piles {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        .pile {
+            width: 252px; /* 168px * 1.5 */
+            height: 336px; /* 224px * 1.5 */
+            border: 2px dashed #999;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background-color: #fff; /* Fundo branco para esconder cartas embaixo */
+            overflow: hidden; /* Esconde conteúdo que ultrapassa os limites */
+        }
+        .pile-title {
+            position: absolute;
+            top: -30px;
+            font-weight: bold;
+            color: #0066cc;
+            font-size: 18px;
+        }
+        .pile-count {
+            position: absolute;
+            bottom: -30px;
+            font-size: 16px;
+            color: #333;
+        }
+        
+        /* Opções do jogo */
+        .game-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .option-group {
+            display: flex;
+            align-items: center;
+            margin: 0 10px;
+            background-color: #f0f8ff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            flex-wrap: wrap;
+        }
+        .option-group input[type="checkbox"] {
+            margin-right: 5px;
+            width: 18px;
+            height: 18px;
+        }
+        #range-inputs {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+            width: 100%;
+        }
+        #range-inputs.hidden {
+            display: none;
+        }
+        
+        /* Estilos para área de respostas */
+        .answer-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .answer-option {
+            background: #e3f2fd;
+            border: 2px solid #2196F3;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            min-width: 120px;
+            text-align: center;
+        }
+        .answer-option:hover {
+            background: #bbdefb;
+            transform: scale(1.05);
+        }
+        .answer-option.correct {
+            background: #c8e6c9;
+            border-color: #388e3c;
+            color: #2e7d32;
+        }
+        .answer-option.incorrect {
+            background: #ffcdd2;
+            border-color: #d32f2f;
+            color: #b71c1c;
+        }
+        .answer-feedback {
+            text-align: center;
+            font-size: 1.2rem;
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .answer-feedback.success {
+            background-color: #c8e6c9;
+            color: #2e7d32;
+        }
+        .answer-feedback.error {
+            background-color: #ffcdd2;
+            color: #b71c1c;
+        }
+        
+        /* Jogo da multiplicação */
+        .multiplication-options {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .number-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .number-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .number-button:hover {
+            transform: scale(1.1);
+        }
+        .answer-form {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .answer-input {
+            width: 80px;
+            height: 40px;
+            font-size: 20px;
+            text-align: center;
+            margin: 0 10px;
+            border: 2px solid #4CAF50;
+            border-radius: 5px;
+        }
+        .score-display {
+            font-size: 18px;
+            margin: 10px 0;
+            color: #0066cc;
+        }
+        .win-message {
+            font-size: 24px;
+            color: #4CAF50;
+            text-align: center;
+            margin: 20px 0;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .card { width: 150px; height: 210px; }
+            .pile { width: 180px; height: 240px; }
+            .number-button { width: 40px; height: 40px; font-size: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Jogos Educativos</h1>
+        <div class="game-selection">
+            <button id="memorize-btn">Memorizar com carta</button>
+            <button id="memory-btn">Jogo da Memória</button>
+            <button id="multiplication-btn">Jogo da Multiplicação</button>
+        </div>
+        
+        <!-- Jogo Memorizar com carta -->
+        <div id="memorize-game" class="hidden">
+            <h2>Memorizar com carta</h2>
+            <div class="game-options">
+                <div class="option-group">
+                    <input type="checkbox" id="easy-option">
+                    <label for="easy-option">Fácil</label>
+                </div>
+                <div class="option-group">
+                    <input type="checkbox" id="random-option">
+                    <label for="random-option">Aleatório</label>
+                </div>
+                <div class="option-group" id="range-options">
+                    <input type="checkbox" id="range-option">
+                    <label for="range-option">Números</label>
+                    <div id="range-inputs" class="hidden">
+                        <label for="start-number">De:</label>
+                        <input type="text" id="start-number" value="1" style="width: 50px; margin: 0 5px;" placeholder="1 ou 01">
+                        <label for="end-number">Até:</label>
+                        <input type="text" id="end-number" value="20" style="width: 50px; margin: 0 5px;" placeholder="20 ou 09">
+                    </div>
+                </div>
+                <button id="restart-memorize">Reiniciar</button>
+                <button id="show-answers">Respostas</button>
+                <button id="back-memorize">Voltar</button>
+            </div>
+            
+            <div class="card-piles">
+                <div class="pile" id="deck-pile">
+                    <span class="pile-title">Montão</span>
+                    <div id="deck-card" class="card">
+                        <div class="card-inner">
+                            <div class="card-front"></div>
+                            <div class="card-back">
+                                <img class="card-image" src="">
+                                <div class="card-code"></div>
+                                <div class="card-name"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="pile-count" id="deck-count">Cartas: 0</span>
+                </div>
+                
+                <div class="pile" id="flipped-pile">
+                    <span class="pile-title">Viradas</span>
+                    <div id="flipped-card" class="card">
+                        <div class="card-inner">
+                            <div class="card-front"></div>
+                            <div class="card-back">
+                                <img class="card-image" src="">
+                                <div class="card-code" style="display: none;"></div>
+                                <div class="card-name" style="display: none;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="pile-count" id="flipped-count">Cartas: 0</span>
+                </div>
+            </div>
+            
+            <!-- Área de respostas -->
+            <div id="answers-area" class="hidden">
+                <h3>Selecione a palavra correta:</h3>
+                <div id="answer-options" class="answer-options"></div>
+                <div id="answer-feedback" class="answer-feedback hidden"></div>
+            </div>
+        </div>
+        
+        <!-- Jogo da Memória -->
+        <div id="memory-game" class="hidden">
+            <h2>Jogo da Memória</h2>
+            <div class="game-options">
+                <button id="memory-8">8 cartas (2×4)</button>
+                <button id="memory-16">16 cartas (4×4)</button>
+                <button id="memory-25">25 cartas (5×5)</button>
+                <button id="memory-36">36 cartas (6×6)</button>
+                <button id="back-memory">Voltar</button>
+            </div>
+            <div class="win-message hidden" id="memory-win">Parabéns! Você encontrou todos os pares!</div>
+            <div class="memory-grid" id="memory-grid"></div>
+        </div>
+        
+        <!-- Jogo da Multiplicação -->
+        <div id="multiplication-game" class="hidden">
+            <h2>Jogo da Multiplicação</h2>
+            <div class="multiplication-options">
+                <p>Escolha uma tabuada:</p>
+                <div class="number-buttons" id="number-buttons">
+                    <!-- Botões de 0 a 9 serão adicionados via JavaScript -->
+                </div>
+                <div class="option-group">
+                    <input type="checkbox" id="random-mult-option">
+                    <label for="random-mult-option">Aleatório</label>
+                </div>
+                <button id="start-mult" class="hidden">Iniciar</button>
+                <button id="back-mult">Voltar</button>
+            </div>
+            
+            <div id="multiplication-play" class="hidden">
+                <div class="score-display" id="score-display">Pontuação: 0/0 (0%)</div>
+                
+                <div class="card-piles">
+                    <div class="pile" id="question-pile">
+                        <span class="pile-title">Pergunta</span>
+                        <div id="question-card" class="card">
+                            <div class="card-inner">
+                                <div class="card-front"></div>
+                                <div class="card-back">
+                                    <div style="font-size: 36px; font-weight: bold;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="pile-count" id="question-count">Cartas: 0</span>
+                    </div>
+                    
+                    <div class="pile" id="answer-pile">
+                        <span class="pile-title">Resposta</span>
+                        <div id="answer-card" class="card">
+                            <div class="card-inner">
+                                <div class="card-front"></div>
+                                <div class="card-back">
+                                    <div style="font-size: 36px; font-weight: bold;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="pile-count" id="answer-count">Cartas: 0</span>
+                    </div>
+                    
+                    <div class="pile" id="image-pile">
+                        <span class="pile-title">Imagem</span>
+                        <div id="image-card" class="card">
+                            <div class="card-inner">
+                                <div class="card-front"></div>
+                                <div class="card-back">
+                                    <img class="card-image" src="">
+                                    <div class="card-code"></div>
+                                    <div class="card-name"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="pile-count" id="image-count">Cartas: 0</span>
+                    </div>
+                </div>
+                
+                <div class="answer-form">
+                    <label for="user-answer">Sua resposta:</label>
+                    <input type="number" id="user-answer" class="answer-input" min="0">
+                    <button id="check-answer">Verificar</button>
+                </div>
+                
+                <div class="win-message hidden" id="mult-win">Parabéns! Você completou toda a tabuada!</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Decorações de fundo -->
+    <script>
+        // Adicionar decorações aleatórias
+        function addDecorations() {
+            const decorations = ['star', 'pencil', 'book'];
+            const count = 20;
+            
+            for (let i = 0; i < count; i++) {
+                const type = decorations[Math.floor(Math.random() * decorations.length)];
+                const decoration = document.createElement('div');
+                decoration.className = `decoration ${type}`;
+                
+                // Posição aleatória
+                const top = Math.random() * 100;
+                const left = Math.random() * 100;
+                const opacity = 0.1 + Math.random() * 0.3;
+                const rotate = Math.random() * 360;
+                
+                decoration.style.top = `${top}%`;
+                decoration.style.left = `${left}%`;
+                decoration.style.opacity = opacity;
+                decoration.style.transform = `rotate(${rotate}deg)`;
+                
+                document.body.appendChild(decoration);
+            }
+        }
+        
+        // Dados das cartas (0-100 + 00-09)
+        const cardsData = [
+            { id: 0, code: "AN", name: "Anel", image: "novas_imagens/0.png" },
+            { id: 1, code: "AS", name: "Aspirador de pó", image: "novas_imagens/1.png" },
+            { id: 2, code: "BO", name: "Bola", image: "novas_imagens/2.png" },
+            { id: 3, code: "IS", name: "Isqueiro", image: "novas_imagens/3.png" },
+            { id: 4, code: "CO", name: "Coelho", image: "novas_imagens/4.png" },
+            { id: 5, code: "UR", name: "Urso", image: "novas_imagens/5.png" },
+            { id: 6, code: "DO", name: "Dominó", image: "novas_imagens/6.png" },
+            { id: 7, code: "EN", name: "Enxada", image: "novas_imagens/7.png" },
+            { id: 8, code: "FO", name: "Foca", image: "novas_imagens/8.png" },
+            { id: 9, code: "ON", name: "Onda", image: "novas_imagens/9.png" },
+            { id: 10, code: "GI", name: "Cubo Metálico", image: "novas_imagens/10.png" },
+            { id: 11, code: "GO", name: "Gorila", image: "novas_imagens/11.png" },
+            { id: 12, code: "GU", name: "Guitarra", image: "novas_imagens/12.png" },
+            { id: 13, code: "JA", name: "Jacaré", image: "novas_imagens/13.png" },
+            { id: 14, code: "JO", name: "Joaninha", image: "novas_imagens/14.png" },
+            { id: 15, code: "LA", name: "Lápis", image: "novas_imagens/15.png" },
+            { id: 16, code: "LE", name: "Leão", image: "novas_imagens/16.png" },
+            { id: 17, code: "LI", name: "Livro", image: "novas_imagens/17.png" },
+            { id: 18, code: "LU", name: "Lua", image: "novas_imagens/18.png" },
+            { id: 19, code: "MA", name: "Macaco", image: "novas_imagens/19.png" },
+            { id: 20, code: "ME", name: "Mesa", image: "novas_imagens/20.png" },
+            { id: 21, code: "MI", name: "Milho", image: "novas_imagens/21.png" },
+            { id: 22, code: "MO", name: "Moto", image: "novas_imagens/22.png" },
+            { id: 23, code: "NA", name: "Navio", image: "novas_imagens/23.png" },
+            { id: 24, code: "NO", name: "Noz", image: "novas_imagens/24.png" },
+            { id: 25, code: "OV", name: "Ovo", image: "novas_imagens/25.png" },
+            { id: 26, code: "PA", name: "Pato", image: "novas_imagens/26.png" },
+            { id: 27, code: "PE", name: "Peixe", image: "novas_imagens/27.png" },
+            { id: 28, code: "PI", name: "Pião", image: "novas_imagens/28.png" },
+            { id: 29, code: "PO", name: "Polvo", image: "novas_imagens/29.png" },
+            { id: 30, code: "PU", name: "Puma", image: "novas_imagens/30.png" },
+            { id: 31, code: "QA", name: "Quadro", image: "novas_imagens/31.png" },
+            { id: 32, code: "QE", name: "Queijo", image: "novas_imagens/32.png" },
+            { id: 33, code: "QI", name: "Quiabo", image: "novas_imagens/33.png" },
+            { id: 34, code: "QO", name: "Quokka", image: "novas_imagens/34.png" },
+            { id: 35, code: "QU", name: "Quati", image: "novas_imagens/35.png" },
+            { id: 36, code: "RA", name: "Rádio", image: "novas_imagens/36.png" },
+            { id: 37, code: "RE", name: "Relógio", image: "novas_imagens/37.png" },
+            { id: 38, code: "JO", name: "Xadrez", image: "novas_imagens/38.png" },
+            { id: 39, code: "RO", name: "Robô", image: "novas_imagens/39.png" },
+            { id: 40, code: "RU", name: "Rua", image: "novas_imagens/40.png" },
+            { id: 41, code: "SA", name: "Sapo", image: "novas_imagens/41.png" },
+            { id: 42, code: "SE", name: "Selo", image: "novas_imagens/42.png" },
+            { id: 43, code: "SI", name: "Sino", image: "novas_imagens/43.png" },
+            { id: 44, code: "SO", name: "Sol", image: "novas_imagens/44.png" },
+            { id: 45, code: "SU", name: "Suco", image: "novas_imagens/45.png" },
+            { id: 46, code: "TA", name: "Tatu", image: "novas_imagens/46.png" },
+            { id: 47, code: "TE", name: "Telefone", image: "novas_imagens/47.png" },
+            { id: 48, code: "TI", name: "Tigre", image: "novas_imagens/48.png" },
+            { id: 49, code: "TO", name: "Tomate", image: "novas_imagens/49.png" },
+            { id: 50, code: "TU", name: "Tucano", image: "novas_imagens/50.png" },
+            { id: 51, code: "PE", name: "Peixe", image: "novas_imagens/51.png" },
+            { id: 52, code: "UE", name: "Urso", image: "novas_imagens/52.png" },
+            { id: 53, code: "UI", name: "Unicórnio", image: "novas_imagens/53.png" },
+            { id: 54, code: "UO", name: "Uó (pássaro)", image: "novas_imagens/54.png" },
+            { id: 55, code: "UU", name: "Urubu", image: "novas_imagens/55.png" },
+            { id: 56, code: "VA", name: "Vaca", image: "novas_imagens/56.png" },
+            { id: 57, code: "VE", name: "Vela", image: "novas_imagens/57.png" },
+            { id: 58, code: "VI", name: "Violão", image: "novas_imagens/58.png" },
+            { id: 59, code: "RU", name: "Colar", image: "novas_imagens/59.png" },
+            { id: 60, code: "XA", name: "Xadrez", image: "novas_imagens/60.png" },
+            { id: 61, code: "XE", name: "Xerife", image: "novas_imagens/61.png" },
+            { id: 62, code: "XI", name: "Xícara", image: "novas_imagens/62.png" },
+            { id: 63, code: "XO", name: "Xodó", image: "novas_imagens/63.png" },
+            { id: 64, code: "XU", name: "Xuxa", image: "novas_imagens/64.png" },
+            { id: 65, code: "ZA", name: "Zabumba", image: "novas_imagens/65.png" },
+            { id: 66, code: "ZE", name: "Zepelim", image: "novas_imagens/66.png" },
+            { id: 67, code: "ZI", name: "Zíper", image: "novas_imagens/67.png" },
+            { id: 68, code: "ZO", name: "Zoológico", image: "novas_imagens/68.png" },
+            { id: 69, code: "ZU", name: "Zumbido", image: "novas_imagens/69.png" },
+            { id: 70, code: "AB", name: "Abacaxi", image: "novas_imagens/70.png" },
+            { id: 71, code: "AC", name: "Açúcar", image: "novas_imagens/71.png" },
+            { id: 72, code: "AD", name: "Adesivo", image: "novas_imagens/72.png" },
+            { id: 73, code: "AF", name: "Afeto", image: "novas_imagens/73.png" },
+            { id: 74, code: "VU", name: "Vulcão", image: "novas_imagens/74.png" },
+            { id: 75, code: "AJ", name: "Ajuda", image: "novas_imagens/75.png" },
+            { id: 76, code: "AL", name: "Alface", image: "novas_imagens/76.png" },
+            { id: 77, code: "AM", name: "Amor", image: "novas_imagens/77.png" },
+            { id: 78, code: "AN", name: "Anel", image: "novas_imagens/78.png" },
+            { id: 79, code: "AP", name: "Apito", image: "novas_imagens/79.png" },
+            { id: 80, code: "AR", name: "Arco", image: "novas_imagens/80.png" },
+            { id: 81, code: "AS", name: "Asa", image: "novas_imagens/81.png" },
+            { id: 82, code: "AT", name: "Atum", image: "novas_imagens/82.png" },
+            { id: 83, code: "AV", name: "Avião", image: "novas_imagens/83.png" },
+            { id: 84, code: "AZ", name: "Azulejo", image: "novas_imagens/84.png" },
+            { id: 85, code: "BE", name: "Bebê", image: "novas_imagens/85.png" },
+            { id: 86, code: "BI", name: "Bicicleta", image: "novas_imagens/86.png" },
+            { id: 87, code: "BU", name: "Burro", image: "novas_imagens/87.png" },
+            { id: 88, code: "CE", name: "Cenoura", image: "novas_imagens/88.png" },
+            { id: 89, code: "CI", name: "Circo", image: "novas_imagens/89.png" },
+            { id: 90, code: "CU", name: "Cubo", image: "novas_imagens/90.png" },
+            { id: 91, code: "DE", name: "Dedo", image: "novas_imagens/91.png" },
+            { id: 92, code: "DI", name: "Dinossauro", image: "novas_imagens/92.png" },
+            { id: 93, code: "DU", name: "Duende", image: "novas_imagens/93.png" },
+            { id: 94, code: "FA", name: "Faca", image: "novas_imagens/94.png" },
+            { id: 95, code: "FI", name: "Figo", image: "novas_imagens/95.png" },
+            { id: 96, code: "FU", name: "Futebol", image: "novas_imagens/96.png" },
+            { id: 97, code: "GE", name: "Gelatina", image: "novas_imagens/97.png" },
+            { id: 98, code: "JE", name: "Jegue", image: "novas_imagens/98.png" },
+            { id: 99, code: "JU", name: "Juiz", image: "novas_imagens/99.png" },
+            { id: 100, code: "KI", name: "Kiwi", image: "novas_imagens/100.png" },
+            { id: "00", code: "AN", name: "Anel", image: "novas_imagens/00.png" },
+            { id: "01", code: "AS", name: "Aspirador de pó", image: "novas_imagens/01.png" },
+            { id: "02", code: "BO", name: "Bola", image: "novas_imagens/02.png" },
+            { id: "03", code: "IS", name: "Isqueiro", image: "novas_imagens/03.png" },
+            { id: "04", code: "CO", name: "Coelho", image: "novas_imagens/04.png" },
+            { id: "05", code: "UR", name: "Urso", image: "novas_imagens/05.png" },
+            { id: "06", code: "DO", name: "Dominó", image: "novas_imagens/06.png" },
+            { id: "07", code: "EN", name: "Enxada", image: "novas_imagens/07.png" },
+            { id: "08", code: "FO", name: "Foca", image: "novas_imagens/08.png" },
+            { id: "09", code: "ON", name: "Onda", image: "novas_imagens/09.png" }
+        ];
+        
+        // Função para embaralhar array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // Função para obter cor aleatória
+        function getRandomColor() {
+            const colors = [
+                '#FF5722', // Laranja
+                '#E91E63', // Rosa
+                '#9C27B0', // Roxo
+                '#673AB7', // Roxo escuro
+                '#3F51B5', // Índigo
+                '#2196F3', // Azul
+                '#03A9F4', // Azul claro
+                '#00BCD4', // Ciano
+                '#009688', // Verde-azulado
+                '#4CAF50', // Verde
+                '#8BC34A', // Verde claro
+                '#CDDC39', // Lima
+                '#FFEB3B', // Amarelo
+                '#00BCD4', // Ciano
+                '#795548', // Marrom
+                '#607D8B'  // Azul acinzentado
+            ];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        // Inicializar quando o DOM estiver carregado
+        document.addEventListener('DOMContentLoaded', function() {
+            // Adicionar decorações
+            addDecorations();
+            
+            // Botões de navegação
+            document.getElementById('memorize-btn').addEventListener('click', function() {
+                hideAllGames();
+                document.getElementById('memorize-game').classList.remove('hidden');
+                initializeMemorizeGame();
+            });
+            
+            document.getElementById('memory-btn').addEventListener('click', function() {
+                hideAllGames();
+                document.getElementById('memory-game').classList.remove('hidden');
+            });
+            
+            document.getElementById('multiplication-btn').addEventListener('click', function() {
+                hideAllGames();
+                document.getElementById('multiplication-game').classList.remove('hidden');
+                initializeMultiplicationGame();
+            });
+            
+            document.getElementById('back-memorize').addEventListener('click', function() {
+                hideAllGames();
+                document.querySelector('.game-selection').classList.remove('hidden');
+            });
+            
+            document.getElementById('back-memory').addEventListener('click', function() {
+                hideAllGames();
+                document.querySelector('.game-selection').classList.remove('hidden');
+            });
+            
+            document.getElementById('back-mult').addEventListener('click', function() {
+                hideAllGames();
+                document.querySelector('.game-selection').classList.remove('hidden');
+            });
+            
+            function hideAllGames() {
+                document.getElementById('memorize-game').classList.add('hidden');
+                document.getElementById('memory-game').classList.add('hidden');
+                document.getElementById('multiplication-game').classList.add('hidden');
+                document.getElementById('multiplication-play').classList.add('hidden');
+                document.querySelector('.multiplication-options').classList.remove('hidden');
+                document.querySelector('.game-selection').classList.add('hidden');
+            }
+            
+            // Inicializar jogo Memorizar com carta
+            function initializeMemorizeGame() {
+                const deckCard = document.getElementById('deck-card');
+                const flippedCard = document.getElementById('flipped-card');
+                const deckCount = document.getElementById('deck-count');
+                const flippedCount = document.getElementById('flipped-count');
+                const easyOption = document.getElementById('easy-option');
+                const randomOption = document.getElementById('random-option');
+                const rangeOption = document.getElementById('range-option');
+                const rangeInputs = document.getElementById('range-inputs');
+                const startNumber = document.getElementById('start-number');
+                const endNumber = document.getElementById('end-number');
+                const restartBtn = document.getElementById('restart-memorize');
+                const showAnswersBtn = document.getElementById('show-answers');
+                const answersArea = document.getElementById('answers-area');
+                const answerOptions = document.getElementById('answer-options');
+                const answerFeedback = document.getElementById('answer-feedback');
+                
+                let deck = [];
+                let flipped = [];
+                let currentCard = null; // Armazenar a carta atual que está sendo virada
+                let isFlipping = false; // Flag para controlar se uma carta está sendo virada
+                let showingAnswers = false; // Flag para controlar se as respostas estão sendo mostradas
+                
+                function resetGame() {
+                    // Copiar todas as cartas
+                    deck = [...cardsData];
+                    
+                    // Adicionar propriedade answered a cada carta
+                    deck.forEach(card => {
+                        card.answered = false;
+                    });
+                    
+                    // Filtrar por intervalo de números se a opção estiver ativada
+                    if (rangeOption.checked) {
+                        const start = startNumber.value;
+                        const end = endNumber.value;
+                        
+                        // Validar valores de entrada
+                        const startNum = parseInt(start);
+                        const endNum = parseInt(end);
+                        if (startNum > endNum) {
+                            alert('O número inicial deve ser menor ou igual ao número final.');
+                            startNumber.value = 1;
+                            endNumber.value = 20;
+                        }
+                        
+                        // Filtrar cartas pelo intervalo de números
+                        deck = deck.filter(card => {
+                            // Tratar os casos especiais de números com prefixo '0'
+                            const cardId = String(card.id);
+                            
+                            // Verificar se o ID da carta está no intervalo
+                            if (cardId.startsWith('0')) {
+                                // Se o intervalo também começa com '0', comparar como strings
+                                if (start.startsWith('0') || end.startsWith('0')) {
+                                    return cardId >= start && cardId <= end;
+                                }
+                                // Se o intervalo não começa com '0', os números com '0' não estão no intervalo
+                                return false;
+                            } else {
+                                // Para números normais, comparar como números
+                                const id = parseInt(cardId);
+                                return !isNaN(id) && id >= startNum && id <= endNum;
+                            }
+                        });
+                    }
+                    
+                    // Embaralhar se opção aleatória estiver marcada
+                    if (randomOption.checked) {
+                        shuffleArray(deck);
+                    } else {
+                        // Ordenar por ID se não for aleatório
+                        deck.sort((a, b) => {
+                            // Converter para string para comparar corretamente "00", "01", etc.
+                            const idA = String(a.id);
+                            const idB = String(b.id);
+                            
+                            // Se ambos começam com 0, comparar como strings
+                            if (idA.startsWith('0') && idB.startsWith('0')) {
+                                return idA.localeCompare(idB);
+                            }
+                            
+                            // Se apenas um começa com 0, colocar os que começam com 0 antes dos números normais
+                            if (idA.startsWith('0')) return -1;
+                            if (idB.startsWith('0')) return 1;
+                            
+                            // Caso contrário, comparar como números
+                            return Number(a.id) - Number(b.id);
+                        });
+                    }
+                    
+                    flipped = [];
+                    currentCard = null;
+                    isFlipping = false;
+                    showingAnswers = false;
+                    
+                    // Esconder área de respostas
+                    answersArea.classList.add('hidden');
+                    answerOptions.innerHTML = '';
+                    answerFeedback.classList.add('hidden');
+                    
+                    // Resetar botão de respostas
+                    showAnswersBtn.textContent = 'Respostas';
+                    
+                    // Atualizar cartas e contadores
+                    updateCardDisplay();
+                    updateCardCounts();
+                    
+                    // Inicialmente, a carta da direita não deve mostrar nenhuma imagem
+                    flippedCard.classList.remove('flipped');
+                }
+                
+                function updateCardCounts() {
+                    deckCount.textContent = `Cartas: ${deck.length}`;
+                    flippedCount.textContent = `Cartas: ${flipped.length}`;
+                }
+                
+                function updateCardDisplay() {
+                    // Atualizar carta do monte (carta da esquerda)
+                    if (deck.length > 0) {
+                        const topCard = deck[0];
+                        const deckFront = deckCard.querySelector('.card-front');
+                        const deckBack = deckCard.querySelector('.card-back');
+                        
+                        // Mostrar número e iniciais no modo fácil na frente da carta do monte principal
+                        if (easyOption.checked) {
+                            const initialLetters = topCard.name.substring(0, 2).toUpperCase();
+                            deckFront.textContent = `${topCard.id} ${initialLetters}`;
+                        } else {
+                            // Mostrar apenas o número na frente da carta do monte principal
+                            deckFront.textContent = topCard.id;
+                        }
+                        
+                        // Configurar verso da carta com imagem, código e nome corretos
+                        deckBack.querySelector('img').src = topCard.image;
+                        deckBack.querySelector('.card-code').textContent = topCard.code;
+                        deckBack.querySelector('.card-name').textContent = topCard.name;
+                        
+                        // Sempre mostrar a frente da carta (o número)
+                        deckCard.classList.remove('flipped');
+                        
+                        // Preparar a imagem na carta da direita, mas não mostrar ainda
+                        if (!showingAnswers) {
+                            const flippedBack = flippedCard.querySelector('.card-back');
+                            flippedBack.querySelector('img').src = topCard.image;
+                        }
+                    } else {
+                        deckCard.querySelector('.card-front').textContent = '';
+                    }
+                    
+                    // Atualizar carta virada (carta da direita)
+                    if (flipped.length > 0) {
+                        const lastFlipped = flipped[flipped.length - 1];
+                        const flippedBack = flippedCard.querySelector('.card-back');
+                        
+                        // Configurar verso da carta apenas com a imagem
+                        flippedBack.querySelector('img').src = lastFlipped.image;
+                        
+                        // Manter a carta virada se já foi respondida
+                        if (lastFlipped.answered) {
+                            flippedCard.classList.add('flipped');
+                        }
+                    } else {
+                        flippedCard.querySelector('.card-front').textContent = '';
+                        flippedCard.classList.remove('flipped');
+                    }
+                    
+                    // Se as respostas estiverem ativadas e houver cartas no deck, gerar opções
+                    if (showingAnswers && deck.length > 0) {
+                        generateAnswerOptions(deck[0]);
+                    }
+                }
+                
+                // Tabela de associação número-palavra baseada na tabela fornecida
+                const associationTable = {
+                    0: "Anel",
+                    "00": "Unicórnio",
+                    "01": "Aspirador de pó",
+                    "02": "Espada",
+                    "03": "Isqueiro",
+                    "04": "Oscar",
+                    "05": "Urso",
+                    "06": "Ampulheta",
+                    "07": "Enxada",
+                    "08": "Injeção",
+                    "09": "Onda",
+                    1: "Barco",
+                    2: "Berço",
+                    3: "Bicicleta",
+                    4: "Bola",
+                    5: "Bússola",
+                    6: "Casa",
+                    7: "Cebola",
+                    8: "Cigarra",
+                    9: "Copo",
+                    10: "Cubo",
+                    11: "Baralho",
+                    12: "Desodorante spray",
+                    13: "Dinamite",
+                    14: "Dominó",
+                    15: "Duende",
+                    16: "Faca",
+                    17: "Ferro",
+                    18: "Fita adesiva",
+                    19: "Fogo",
+                    20: "Funil",
+                    21: "Gato",
+                    22: "Gelo",
+                    23: "Girafa",
+                    24: "Gorila",
+                    25: "Guitarra",
+                    26: "Harpa",
+                    27: "Hélice",
+                    28: "Hipopótamo",
+                    29: "Homem de Ferro",
+                    30: "Hulk",
+                    31: "Jato",
+                    32: "Jesus",
+                    33: "Jiboia",
+                    34: "Joia",
+                    35: "Jumento",
+                    36: "Lâmpada",
+                    37: "Leite",
+                    38: "Livrote",
+                    39: "Luva de Box",
+                    40: "Mamute",
+                    41: "Mesa",
+                    42: "Milho",
+                    43: "Moeda",
+                    44: "Mumia",
+                    45: "Navio",
+                    46: "Neve",
+                    47: "Ninja",
+                    48: "Notebook",
+                    49: "Nuvem",
+                    50: "Pato",
+                    51: "Peixe",
+                    52: "Piano",
+                    53: "Porco",
+                    54: "Pudim",
+                    55: "Rato",
+                    56: "Relógio",
+                    57: "Rinoceronte",
+                    58: "Roda",
+                    59: "Colar de Rubi",
+                    60: "Sapo",
+                    61: "Serra Elétrica",
+                    62: "Sino",
+                    63: "Sorvete",
+                    64: "Submarino",
+                    65: "Tartaruga",
+                    66: "Telha",
+                    67: "Tigre",
+                    68: "Tomate",
+                    69: "Tubarão",
+                    70: "Vaca",
+                    71: "Vela",
+                    72: "Violão",
+                    73: "Volante",
+                    74: "Vulcão",
+                    75: "Xadrez",
+                    76: "Xerox",
+                    77: "Xinelo",
+                    78: "Chocalho",
+                    79: "Ovo",
+                    80: "Zap",
+                    81: "Zebra",
+                    83: "Zoorro",
+                    84: "Zumbi",
+                    85: "Chapéu",
+                    86: "Cherife",
+                    87: "Chicote",
+                    88: "Chocolate",
+                    89: "Moto",
+                    90: "Quadro",
+                    91: "Queijo",
+                    92: "Colchão",
+                    93: "Cruz",
+                    94: "Prato",
+                    95: "Pregos",
+                    96: "Projetor",
+                    97: "Drone",
+                    98: "Escada",
+                    99: "Furadeira",
+                    100: "Teclado"
+                };
+                
+                // Função para gerar opções de resposta
+                function generateAnswerOptions(correctCard) {
+                    // Limpar opções anteriores
+                    answerOptions.innerHTML = '';
+                    answerFeedback.innerHTML = '';
+                    answerFeedback.classList.add('hidden');
+                    answerFeedback.classList.remove('success', 'error');
+                    
+                    // Mostrar a área de respostas
+                    answersArea.classList.remove('hidden');
+                    
+                    // Obter a palavra correta da tabela de associação
+                    const correctWord = associationTable[correctCard.id] || correctCard.name;
+                    
+                    // Criar uma lista de palavras possíveis (excluindo a correta)
+                    const possibleWords = [];
+                    for (const [id, word] of Object.entries(associationTable)) {
+                        if (id != correctCard.id && word !== correctWord) {
+                            possibleWords.push(word);
+                        }
+                    }
+                    
+                    // Embaralhar a lista de palavras possíveis
+                    shuffleArray(possibleWords);
+                    
+                    // Selecionar 3 palavras aleatórias diferentes da correta
+                    const otherOptions = possibleWords.slice(0, 3);
+                    
+                    // Adicionar a opção correta e embaralhar todas as opções
+                    const allOptions = [...otherOptions, correctWord];
+                    shuffleArray(allOptions);
+                    
+                    // Criar elementos para as opções
+                    allOptions.forEach(word => {
+                        const option = document.createElement('div');
+                        option.className = 'answer-option';
+                        option.textContent = word;
+                        
+                        option.addEventListener('click', function() {
+                            // Verificar se a resposta está correta
+                            const isCorrect = word === correctWord;
+                            
+                            // Marcar visualmente a opção selecionada
+                            document.querySelectorAll('.answer-option').forEach(opt => {
+                                opt.classList.remove('correct', 'incorrect');
+                                opt.disabled = true;
+                            });
+                            
+                            option.classList.add(isCorrect ? 'correct' : 'incorrect');
+                            
+                            // Mostrar feedback
+                            answerFeedback.innerHTML = isCorrect ? 
+                                'Correto! Muito bem!' : 
+                                `Incorreto! A resposta certa é "${correctWord}"`;
+                            answerFeedback.classList.remove('hidden');
+                            answerFeedback.classList.add(isCorrect ? 'success' : 'error');
+                            
+                            // Se estiver correto, virar a carta para mostrar a imagem
+                            if (isCorrect) {
+                                // Marcar a carta atual como respondida corretamente
+                                if (flipped.length > 0) {
+                                    flipped[flipped.length - 1].answered = true;
+                                }
+                                
+                                                // Atualizar a imagem na carta da direita com a imagem correspondente ao número atual
+                                if (deck.length > 0) {
+                                    const currentCard = deck[0];
+                                    const flippedBack = flippedCard.querySelector('.card-back');
+                                    
+                                    // Aplicar animação de virada
+                                    flippedCard.querySelector('.card-inner').classList.add('flip-animation');
+                                    
+                                    // Atualizar a imagem durante a animação
+                                    setTimeout(() => {
+                                        flippedBack.querySelector('img').src = currentCard.image;
+                                        // Garantir que a carta está virada para mostrar a imagem
+                                        flippedCard.classList.add('flipped');
+                                    }, 250); // Metade do tempo da animação (quando a carta está a 90 graus)
+                                    
+                                    // Remover a classe de animação após a conclusão
+                                    setTimeout(() => {
+                                        flippedCard.querySelector('.card-inner').classList.remove('flip-animation');
+                                    }, 1000);
+                                }
+                                
+                                // Após um tempo, avançar para a próxima carta
+                                setTimeout(() => {
+                                    // Limpar opções e feedback
+                                    document.querySelectorAll('.answer-option').forEach(opt => {
+                                        opt.disabled = false;
+                                    });
+                                    answerOptions.innerHTML = '';
+                                    answerFeedback.classList.add('hidden');
+                                    
+                                    // Avançar para a próxima carta
+                                    advanceToNextCard();
+                                }, 1500);
+                            }
+                        });
+                        
+                        answerOptions.appendChild(option);
+                    });
+                }
+                
+                // Evento de clique na carta do monte (carta da esquerda)
+                deckCard.addEventListener('click', function() {
+                    if (deck.length > 0 && !isFlipping) {
+                        // Se as respostas estiverem ativadas, não fazer nada ao clicar na carta
+                        // O usuário precisa responder corretamente primeiro
+                        if (showingAnswers) {
+                            // Apenas gerar as opções de resposta se ainda não estiverem visíveis
+                            if (answerOptions.children.length === 0) {
+                                generateAnswerOptions(deck[0]);
+                            }
+                            return;
+                        }
+                        
+                        // Comportamento normal quando respostas não estão ativadas
+                        // Virar a carta da direita para mostrar a imagem e avançar para a próxima carta
+                        if (deck.length > 0) {
+                            const currentCard = deck[0];
+                            
+                            // Aplicar animação de virada na carta da direita
+                            flippedCard.querySelector('.card-inner').classList.add('flip-animation');
+                            
+                            // Atualizar a imagem durante a animação
+                            setTimeout(() => {
+                                const flippedBack = flippedCard.querySelector('.card-back');
+                                flippedBack.querySelector('img').src = currentCard.image;
+                                flippedCard.classList.add('flipped');
+                            }, 250); // Metade do tempo da animação
+                            
+                            // Remover a classe de animação após a conclusão
+                            setTimeout(() => {
+                                flippedCard.querySelector('.card-inner').classList.remove('flip-animation');
+                            }, 1000);
+                            
+                            // Marcar a carta como respondida
+                            currentCard.answered = true;
+                            
+                            // Avançar para a próxima carta após um breve atraso
+                            setTimeout(() => {
+                                // Aplicar animação de virada na carta da esquerda
+                                deckCard.querySelector('.card-inner').classList.add('flip-animation');
+                                
+                                setTimeout(() => {
+                                    advanceToNextCard();
+                                    
+                                    // Remover a classe de animação após a conclusão
+                                    setTimeout(() => {
+                                        deckCard.querySelector('.card-inner').classList.remove('flip-animation');
+                                    }, 1000);
+                                }, 250);
+                            }, 1500);
+                        }
+                    }
+                });
+                
+                // Função para avançar para a próxima carta
+                function advanceToNextCard() {
+                    if (deck.length > 0 && !isFlipping) {
+                        isFlipping = true;
+                        currentCard = deck[0]; // Armazenar a carta atual
+                        
+                        // Adicionar propriedade para controlar se a carta já foi respondida
+                        if (showingAnswers) {
+                            currentCard.answered = false;
+                        } else {
+                            // No modo normal, a carta já foi respondida
+                            currentCard.answered = true;
+                        }
+                        
+                        // Remover a carta atual do deck e adicionar ao monte de viradas
+                        deck.shift();
+                        flipped.push(currentCard);
+                        
+                        // Atualizar contadores
+                        updateCardCounts();
+                        
+                        // Atualizar a carta do monte com a próxima carta
+                        if (deck.length > 0) {
+                            const nextCard = deck[0];
+                            const deckFront = deckCard.querySelector('.card-front');
+                            
+                            // Mostrar número e iniciais no modo fácil na frente da carta do monte principal
+                            if (easyOption.checked) {
+                                const initialLetters = nextCard.name.substring(0, 2).toUpperCase();
+                                deckFront.textContent = `${nextCard.id} ${initialLetters}`;
+                            } else {
+                                // Mostrar apenas o número na frente da carta do monte principal
+                                deckFront.textContent = nextCard.id;
+                            }
+                            
+                            // No modo normal, preparar a imagem da próxima carta, mas não mostrar ainda
+                            if (!showingAnswers) {
+                                const flippedBack = flippedCard.querySelector('.card-back');
+                                flippedBack.querySelector('img').src = nextCard.image;
+                            }
+                        } else {
+                            deckCard.querySelector('.card-front').textContent = '';
+                        }
+                        
+                        // No modo de respostas, gerar opções para a próxima carta
+                        if (showingAnswers && deck.length > 0) {
+                            generateAnswerOptions(deck[0]);
+                        }
+                        
+                        // Resetar flag de virar
+                        isFlipping = false;
+                    }
+                }
+                
+                // Mostrar/esconder inputs de intervalo de números
+                rangeOption.addEventListener('change', function() {
+                    if (rangeOption.checked) {
+                        rangeInputs.classList.remove('hidden');
+                    } else {
+                        rangeInputs.classList.add('hidden');
+                    }
+                    resetGame();
+                });
+                
+                // Atualizar jogo quando a opção aleatória for alterada
+                randomOption.addEventListener('change', function() {
+                    resetGame();
+                });
+                
+                // Atualizar jogo quando os números de intervalo forem alterados
+                startNumber.addEventListener('change', resetGame);
+                endNumber.addEventListener('change', resetGame);
+                
+                restartBtn.addEventListener('click', resetGame);
+                easyOption.addEventListener('change', resetGame);
+                
+                // Evento para mostrar/esconder opções de resposta
+                showAnswersBtn.addEventListener('click', function() {
+                    showingAnswers = !showingAnswers;
+                    
+                    if (showingAnswers) {
+                        showAnswersBtn.textContent = 'Ocultar Respostas';
+                        answersArea.classList.remove('hidden');
+                        
+                        // Gerar opções para a carta atual (a da esquerda)
+                        if (deck.length > 0) {
+                            // Gerar opções de resposta para a carta atual
+                            // mas manter a carta da direita virada mostrando a imagem
+                            generateAnswerOptions(deck[0]);
+                        }
+                    } else {
+                        showAnswersBtn.textContent = 'Respostas';
+                        answersArea.classList.add('hidden');
+                        answerOptions.innerHTML = '';
+                    }
+                });
+                
+                // Inicializar jogo
+                resetGame();
+            }
+            
+            // Inicializar jogo da Memória
+            document.getElementById('memory-8').addEventListener('click', function() {
+                initializeMemoryGame(8);
+            });
+            
+            document.getElementById('memory-16').addEventListener('click', function() {
+                initializeMemoryGame(16);
+            });
+            
+            document.getElementById('memory-25').addEventListener('click', function() {
+                initializeMemoryGame(25);
+            });
+            
+            document.getElementById('memory-36').addEventListener('click', function() {
+                initializeMemoryGame(36);
+            });
+            
+            function initializeMemoryGame(cardCount) {
+                const memoryGrid = document.getElementById('memory-grid');
+                const winMessage = document.getElementById('memory-win');
+                
+                // Configurar grid baseado no número de cartas
+                let gridColumns;
+                if (cardCount === 8) {
+                    gridColumns = 4; // 2x4
+                } else if (cardCount === 16) {
+                    gridColumns = 4; // 4x4
+                } else if (cardCount === 25) {
+                    gridColumns = 5; // 5x5
+                } else if (cardCount === 36) {
+                    gridColumns = 6; // 6x6
+                }
+                
+                memoryGrid.style.gridTemplateColumns = `repeat(${gridColumns}, 1fr)`;
+                
+                // Limpar grid
+                memoryGrid.innerHTML = '';
+                winMessage.classList.add('hidden');
+                
+                // Selecionar cartas para o jogo
+                let gameCards = [];
+                let selectedCards = [];
+                
+                // Para o jogo da memória, usamos pares de cartas: números e imagens
+                // Selecionar cartas aleatórias do conjunto completo
+                let availableCards = [...cardsData];
+                shuffleArray(availableCards);
+                availableCards = availableCards.slice(0, cardCount / 2);
+                
+                for (let i = 0; i < cardCount / 2; i++) {
+                    const card = availableCards[i];
+                    
+                    // Carta com número
+                    const numberCard = {
+                        id: card.id,
+                        type: 'number',
+                        matchId: card.id
+                    };
+                    
+                    // Carta com imagem
+                    const imageCard = {
+                        id: card.id,
+                        type: 'image',
+                        image: card.image,
+                        code: card.code,
+                        name: card.name,
+                        matchId: card.id
+                    };
+                    
+                    selectedCards.push(numberCard, imageCard);
+                }
+                
+                // Embaralhar cartas
+                shuffleArray(selectedCards);
+                gameCards = selectedCards;
+                
+                let selectedPair = [];
+                let matchedPairs = 0;
+                const totalPairs = cardCount / 2;
+                
+                // Criar cartas no grid
+                gameCards.forEach((card, index) => {
+                    const cardElement = document.createElement('div');
+                    cardElement.className = 'card';
+                    cardElement.dataset.index = index;
+                    
+                    const cardInner = document.createElement('div');
+                    cardInner.className = 'card-inner';
+                    
+                    const cardFront = document.createElement('div');
+                    cardFront.className = 'card-front';
+                    
+                    const cardBack = document.createElement('div');
+                    cardBack.className = 'card-back';
+                    
+                    if (card.type === 'number') {
+                        cardBack.innerHTML = `<div style="font-size: 36px; font-weight: bold;">${card.id}</div>`;
+                    } else {
+                        cardBack.innerHTML = `<img class="card-image" src="${card.image}" alt="${card.name}">`;
+                    }
+                    
+                    cardInner.appendChild(cardFront);
+                    cardInner.appendChild(cardBack);
+                    cardElement.appendChild(cardInner);
+                    
+                    // Evento de clique na carta
+                    cardElement.addEventListener('click', function() {
+                        // Ignorar se a carta já está virada ou já foi encontrada
+                        if (cardElement.classList.contains('flipped') || cardElement.classList.contains('matched')) {
+                            return;
+                        }
+                        
+                        // Ignorar se já temos duas cartas viradas
+                        if (selectedPair.length >= 2) {
+                            return;
+                        }
+                        
+                        // Virar a carta
+                        cardElement.classList.add('flipped');
+                        
+                        // Adicionar à seleção atual
+                        selectedPair.push({
+                            element: cardElement,
+                            card: card
+                        });
+                        
+                        // Se temos duas cartas viradas, verificar se são um par
+                        if (selectedPair.length === 2) {
+                            const card1 = selectedPair[0].card;
+                            const card2 = selectedPair[1].card;
+                            
+                            if (card1.matchId === card2.matchId && card1.type !== card2.type) {
+                                // Par encontrado!
+                                setTimeout(() => {
+                                    selectedPair[0].element.classList.add('matched');
+                                    selectedPair[1].element.classList.add('matched');
+                                    selectedPair = [];
+                                    
+                                    matchedPairs++;
+                                    
+                                    // Verificar se o jogo acabou
+                                    if (matchedPairs === totalPairs) {
+                                        winMessage.classList.remove('hidden');
+                                    }
+                                }, 500);
+                            } else {
+                                // Não é um par, virar as cartas de volta
+                                setTimeout(() => {
+                                    selectedPair[0].element.classList.remove('flipped');
+                                    selectedPair[1].element.classList.remove('flipped');
+                                    selectedPair = [];
+                                }, 1000);
+                            }
+                        }
+                    });
+                    
+                    memoryGrid.appendChild(cardElement);
+                });
+            }
+            
+            // Inicializar jogo da Multiplicação
+            function initializeMultiplicationGame() {
+                const numberButtons = document.getElementById('number-buttons');
+                const randomOption = document.getElementById('random-mult-option');
+                const startButton = document.getElementById('start-mult');
+                const multiplicationPlay = document.getElementById('multiplication-play');
+                const multiplicationOptions = document.querySelector('.multiplication-options');
+                const scoreDisplay = document.getElementById('score-display');
+                const questionCard = document.getElementById('question-card');
+                const answerCard = document.getElementById('answer-card');
+                const imageCard = document.getElementById('image-card');
+                const questionCount = document.getElementById('question-count');
+                const answerCount = document.getElementById('answer-count');
+                const imageCount = document.getElementById('image-count');
+                const userAnswer = document.getElementById('user-answer');
+                const checkAnswer = document.getElementById('check-answer');
+                const winMessage = document.getElementById('mult-win');
+                
+                // Limpar botões de números
+                numberButtons.innerHTML = '';
+                
+                // Adicionar botões de 0 a 9
+                for (let i = 0; i <= 9; i++) {
+                    const button = document.createElement('div');
+                    button.className = 'number-button';
+                    button.textContent = i;
+                    button.style.backgroundColor = getRandomColor();
+                    
+                    button.addEventListener('click', function() {
+                        // Selecionar tabuada
+                        selectedTable = i;
+                        
+                        // Destacar botão selecionado
+                        const allButtons = numberButtons.querySelectorAll('.number-button');
+                        allButtons.forEach(btn => btn.style.border = 'none');
+                        button.style.border = '3px solid #333';
+                        
+                        // Mostrar botão iniciar
+                        startButton.classList.remove('hidden');
+                    });
+                    
+                    numberButtons.appendChild(button);
+                }
+                
+                let selectedTable = null;
+                let questions = [];
+                let currentQuestionIndex = 0;
+                let score = 0;
+                let totalQuestions = 0;
+                let imageCardFlipped = false; // Flag para controlar se a carta de imagem está virada
+                
+                // Iniciar jogo
+                startButton.addEventListener('click', function() {
+                    if (selectedTable !== null) {
+                        // Esconder opções e mostrar jogo
+                        multiplicationOptions.classList.add('hidden');
+                        multiplicationPlay.classList.remove('hidden');
+                        
+                        // Gerar perguntas
+                        generateQuestions();
+                        
+                        // Iniciar jogo
+                        currentQuestionIndex = 0;
+                        score = 0;
+                        totalQuestions = 0;
+                        imageCardFlipped = false;
+                        
+                        // Esconder mensagem de vitória
+                        winMessage.classList.add('hidden');
+                        
+                        // Mostrar primeira pergunta
+                        showQuestion();
+                    }
+                });
+                
+                // Gerar perguntas da tabuada
+                function generateQuestions() {
+                    questions = [];
+                    
+                    for (let i = 0; i <= 10; i++) {
+                        questions.push({
+                            table: selectedTable,
+                            multiplier: i,
+                            result: selectedTable * i
+                        });
+                    }
+                    
+                    // Embaralhar se opção aleatória estiver marcada
+                    if (randomOption.checked) {
+                        shuffleArray(questions);
+                    }
+                    
+                    totalQuestions = questions.length;
+                    updateScore();
+                }
+                
+                // Mostrar pergunta atual
+                function showQuestion() {
+                    // Resetar cartas de pergunta e resposta
+                    questionCard.classList.remove('flipped');
+                    answerCard.classList.remove('flipped');
+                    
+                    // Não resetar a carta de imagem se já estiver virada
+                    // imageCard.classList.remove('flipped');
+                    
+                    if (currentQuestionIndex < questions.length) {
+                        const question = questions[currentQuestionIndex];
+                        
+                        // Mostrar pergunta na frente da carta (não no verso)
+                        const questionFront = questionCard.querySelector('.card-front');
+                        questionFront.innerHTML = `<div style="font-size: 36px; font-weight: bold;">${question.table} × ${question.multiplier}</div>`;
+                        
+                        // Atualizar contadores
+                        questionCount.textContent = `Cartas: ${questions.length - currentQuestionIndex}`;
+                        answerCount.textContent = `Cartas: ${currentQuestionIndex}`;
+                        imageCount.textContent = `Cartas: ${currentQuestionIndex}`;
+                        
+                        // Focar no campo de resposta
+                        userAnswer.value = '';
+                        userAnswer.focus();
+                    } else {
+                        // Jogo completo
+                        winMessage.classList.remove('hidden');
+                    }
+                }
+                
+                // Verificar resposta
+                function checkUserAnswer() {
+                    if (currentQuestionIndex < questions.length) {
+                        const question = questions[currentQuestionIndex];
+                        const answer = parseInt(userAnswer.value);
+                        
+                        if (!isNaN(answer)) {
+                            // Virar carta de pergunta
+                            questionCard.classList.add('flipped');
+                            
+                            // Mostrar resposta correta
+                            const answerBack = answerCard.querySelector('.card-back div');
+                            answerBack.textContent = question.result;
+                            answerCard.classList.add('flipped');
+                            
+                            // Mostrar imagem correspondente ao resultado
+                            const imageResult = cardsData.find(card => {
+                                // Converter para string para comparar corretamente "00", "01", etc.
+                                return String(card.id) === String(question.result);
+                            });
+                            
+                            if (imageResult) {
+                                const imageBack = imageCard.querySelector('.card-back');
+                                imageBack.querySelector('img').src = imageResult.image;
+                                imageBack.querySelector('.card-code').textContent = imageResult.code;
+                                imageBack.querySelector('.card-name').textContent = imageResult.name;
+                                imageCard.classList.add('flipped');
+                                imageCardFlipped = true;
+                            }
+                            
+                            // Verificar se resposta está correta
+                            if (answer === question.result) {
+                                score++;
+                            }
+                            
+                            // Atualizar pontuação
+                            updateScore();
+                            
+                            // Avançar para próxima pergunta após um tempo
+                            setTimeout(() => {
+                                currentQuestionIndex++;
+                                showQuestion();
+                            }, 1500);
+                        }
+                    }
+                }
+                
+                // Atualizar pontuação
+                function updateScore() {
+                    const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+                    scoreDisplay.textContent = `Pontuação: ${score}/${totalQuestions} (${percentage}%)`;
+                }
+                
+                // Evento de clique no botão verificar
+                checkAnswer.addEventListener('click', checkUserAnswer);
+                
+                // Evento de tecla Enter no campo de resposta
+                userAnswer.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        checkUserAnswer();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+.resposta-carta {
+    background: #e3f2fd;
+    border: 2px solid #2196F3;
+    border-radius: 10px;
+    font-size: 1.5rem;
+    padding: 30px 40px;
+    margin: 10px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    min-width: 120px;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+.resposta-carta:hover {
+    background: #bbdefb;
+    transform: scale(1.05);
+}
+.resposta-carta.correta {
+    background: #c8e6c9;
+    border-color: #388e3c;
+    color: #2e7d32;
+}
+.resposta-carta.errada {
+    background: #ffcdd2;
+    border-color: #d32f2f;
+    color: #b71c1c;
+}
+.resposta-imagem {
+    display: block;
+    max-width: 90px;
+    max-height: 90px;
+    margin: 10px auto 0 auto;
+}
