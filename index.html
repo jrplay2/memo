@@ -6,7 +6,7 @@
     <title>Jogos Educativos</title>
     <style>
         /* Reset & estilos gerais */
-        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Comic Sans MS', cursive, sans-serif; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
         body { background-color: #e6f3ff; color: #333; padding: 20px; }
         .hidden { display:none; }
         .container { max-width: 900px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
@@ -27,21 +27,7 @@
             transform: scale(1.05);
             
         }
-        /* Botão de menu fixo (topo direito) */
-        .menu-fixed-btn {
-            position: fixed;
-            top: 12px;
-            right: 12px;
-            padding: 10px 16px;
-            background-color: #0066cc;
-            color: #fff;
-            border-radius: 20px;
-            text-decoration: none;
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            z-index: 1000;
-        }
-        .menu-fixed-btn:hover { background-color: #0055aa; transform: scale(1.05); }
+        
         label { margin-right: 10px; font-size: 16px; }
         
         /* Decorações */
@@ -354,8 +340,7 @@
     </style>
 </head>
 <body>
-    <!-- Botão fixo para acessar as páginas de jogos -->
-    <a class="menu-fixed-btn" href="cod/index.html" title="Ir para páginas de jogos">🎮 Jogos</a>
+    <script src="/menu.js"></script>
     <div class="container">
         <h1>Jogos Educativos</h1>
         <div class="game-selection">
