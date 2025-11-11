@@ -237,6 +237,19 @@
             margin: 10px 0;
             color: #0066cc;
         }
+        /* Modalidade Contas */
+        .accounts-question {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .feedback-message {
+            font-size: 18px;
+            text-align: center;
+            margin-top: 10px;
+            color: #e53935;
+        }
         .win-message {
             font-size: 24px;
             color: #4CAF50;
@@ -344,6 +357,8 @@
                     <label for="random-mult-option">Aleatório</label>
                 </div>
                 <button id="start-mult" class="hidden">Iniciar</button>
+                <p style="margin-top: 10px;">Ou pratique: Contas</p>
+                <button id="start-accounts">Iniciar Contas</button>
                 <button id="back-mult">Voltar</button>
             </div>
             
@@ -400,6 +415,22 @@
                 </div>
                 
                 <div class="win-message hidden" id="mult-win">Parabéns! Você completou toda a tabuada!</div>
+            </div>
+
+            <!-- Modalidade: Contas -->
+            <div id="accounts-play" class="hidden">
+                <div class="score-display" id="accounts-progress">Questão 0 de 10 — Acertos: 0</div>
+                <div class="accounts-question" id="accounts-question">Quanto é ?</div>
+                <div class="answer-form">
+                    <label for="accounts-answer">Sua resposta:</label>
+                    <input type="number" id="accounts-answer" class="answer-input" min="0">
+                    <button id="accounts-check">Verificar</button>
+                </div>
+                <div class="feedback-message" id="accounts-feedback"></div>
+                <div class="win-message hidden" id="accounts-win">Parabéns! Você completou todas as contas!</div>
+                <div style="text-align:center; margin-top:10px;">
+                    <button id="back-accounts">Voltar</button>
+                </div>
             </div>
         </div>
     </div>
@@ -621,6 +652,8 @@
                 document.getElementById('memory-game').classList.add('hidden');
                 document.getElementById('multiplication-game').classList.add('hidden');
                 document.getElementById('multiplication-play').classList.add('hidden');
+                const accountsPlayEl = document.getElementById('accounts-play');
+                if (accountsPlayEl) accountsPlayEl.classList.add('hidden');
                 document.querySelector('.multiplication-options').classList.remove('hidden');
                 document.querySelector('.game-selection').classList.add('hidden');
             }
@@ -984,6 +1017,16 @@
                 const userAnswer = document.getElementById('user-answer');
                 const checkAnswer = document.getElementById('check-answer');
                 const winMessage = document.getElementById('mult-win');
+                // Modalidade: Contas
+                const startAccounts = document.getElementById('start-accounts');
+                const accountsPlay = document.getElementById('accounts-play');
+                const accountsProgress = document.getElementById('accounts-progress');
+                const accountsQuestion = document.getElementById('accounts-question');
+                const accountsAnswer = document.getElementById('accounts-answer');
+                const accountsCheck = document.getElementById('accounts-check');
+                const accountsFeedback = document.getElementById('accounts-feedback');
+                const accountsWin = document.getElementById('accounts-win');
+                const backAccounts = document.getElementById('back-accounts');
                 
                 // Limpar botões de números
                 numberButtons.innerHTML = '';
@@ -1017,6 +1060,11 @@
                 let score = 0;
                 let totalQuestions = 0;
                 let imageCardFlipped = false; // Flag para controlar se a carta de imagem está virada
+
+                // Estado da modalidade Contas
+                let accountsQuestions = [];
+                let accountsIndex = 0;
+                let accountsCorrect = 0;
                 
                 // Iniciar jogo
                 startButton.addEventListener('click', function() {
@@ -1041,6 +1089,19 @@
                         showQuestion();
                     }
                 });
+
+                // Iniciar modalidade Contas
+                startAccounts.addEventListener('click', function() {
+                    multiplicationOptions.classList.add('hidden');
+                    accountsPlay.classList.remove('hidden');
+                    accountsWin.classList.add('hidden');
+                    accountsFeedback.textContent = '';
+                    // Gerar 10 questões com números de 2 a 4 dígitos (10 a 1000)
+                    accountsQuestions = generateAccountsQuestions(10);
+                    accountsIndex = 0;
+                    accountsCorrect = 0;
+                    showAccountsQuestion();
+                });
                 
                 // Gerar perguntas da tabuada
                 function generateQuestions() {
@@ -1062,7 +1123,7 @@
                     totalQuestions = questions.length;
                     updateScore();
                 }
-                
+
                 // Mostrar pergunta atual
                 function showQuestion() {
                     // Resetar cartas de pergunta e resposta
@@ -1092,7 +1153,7 @@
                         winMessage.classList.remove('hidden');
                     }
                 }
-                
+
                 // Verificar resposta
                 function checkUserAnswer() {
                     if (currentQuestionIndex < questions.length) {
@@ -1139,21 +1200,79 @@
                         }
                     }
                 }
-                
+
                 // Atualizar pontuação
                 function updateScore() {
                     const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
                     scoreDisplay.textContent = `Pontuação: ${score}/${totalQuestions} (${percentage}%)`;
                 }
-                
+
                 // Evento de clique no botão verificar
                 checkAnswer.addEventListener('click', checkUserAnswer);
-                
+
                 // Evento de tecla Enter no campo de resposta
                 userAnswer.addEventListener('keypress', function(e) {
                     if (e.key === 'Enter') {
                         checkUserAnswer();
                     }
+                });
+
+                // ===== Modalidade Contas =====
+                function randomInt(min, max) {
+                    return Math.floor(Math.random() * (max - min + 1)) + min;
+                }
+                function generateAccountsQuestions(n) {
+                    const qs = [];
+                    for (let i = 0; i < n; i++) {
+                        const a = randomInt(10, 1000); // 2 a 4 dígitos
+                        const b = randomInt(10, 1000); // 2 a 4 dígitos
+                        qs.push({ a, b, result: a * b });
+                    }
+                    return qs;
+                }
+                function showAccountsQuestion() {
+                    const q = accountsQuestions[accountsIndex];
+                    accountsQuestion.textContent = `Quanto é ${q.a} × ${q.b}?`;
+                    accountsProgress.textContent = `Questão ${accountsIndex + 1} de ${accountsQuestions.length} — Acertos: ${accountsCorrect}`;
+                    accountsAnswer.value = '';
+                    accountsAnswer.focus();
+                    accountsFeedback.textContent = '';
+                    accountsFeedback.style.color = '#e53935';
+                }
+                function checkAccountsAnswer() {
+                    const q = accountsQuestions[accountsIndex];
+                    const val = parseInt(accountsAnswer.value);
+                    if (isNaN(val)) {
+                        accountsFeedback.textContent = 'Digite um número válido.';
+                        accountsFeedback.style.color = '#e53935';
+                        return;
+                    }
+                    if (val === q.result) {
+                        accountsCorrect++;
+                        accountsFeedback.textContent = 'Correto!';
+                        accountsFeedback.style.color = '#4CAF50';
+                        setTimeout(() => {
+                            accountsIndex++;
+                            if (accountsIndex >= accountsQuestions.length) {
+                                accountsWin.classList.remove('hidden');
+                                accountsProgress.textContent = `Acertos: ${accountsCorrect}/${accountsQuestions.length}`;
+                            } else {
+                                showAccountsQuestion();
+                            }
+                        }, 800);
+                    } else {
+                        accountsFeedback.textContent = 'Está errado, tente novamente.';
+                        accountsFeedback.style.color = '#e53935';
+                        accountsAnswer.select();
+                    }
+                }
+                accountsCheck.addEventListener('click', checkAccountsAnswer);
+                accountsAnswer.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') checkAccountsAnswer();
+                });
+                backAccounts.addEventListener('click', function() {
+                    accountsPlay.classList.add('hidden');
+                    multiplicationOptions.classList.remove('hidden');
                 });
             }
         });
