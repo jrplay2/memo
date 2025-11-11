@@ -25,7 +25,23 @@
         button:hover {
             background-color: #45a049;
             transform: scale(1.05);
+            
         }
+        /* Botão de menu fixo (topo direito) */
+        .menu-fixed-btn {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            padding: 10px 16px;
+            background-color: #0066cc;
+            color: #fff;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            z-index: 1000;
+        }
+        .menu-fixed-btn:hover { background-color: #0055aa; transform: scale(1.05); }
         label { margin-right: 10px; font-size: 16px; }
         
         /* Decorações */
@@ -267,6 +283,14 @@
             align-items: center;
             margin: 20px 0;
         }
+        
+        /* Jogo da adição */
+        .addition-options {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+        }
         .number-buttons {
             display: flex;
             flex-wrap: wrap;
@@ -330,6 +354,8 @@
     </style>
 </head>
 <body>
+    <!-- Botão fixo para acessar as páginas de jogos -->
+    <a class="menu-fixed-btn" href="cod/index.html" title="Ir para páginas de jogos">🎮 Jogos</a>
     <div class="container">
         <h1>Jogos Educativos</h1>
         <div class="game-selection">
@@ -337,6 +363,7 @@
             <button id="memory-btn">Jogo da Memória</button>
             <button id="multiplication-btn">Jogo da Multiplicação</button>
             <button id="division-btn">Jogo da Divisão</button>
+            <button id="addition-btn">Jogo da Adição</button>
         </div>
         
         <!-- Jogo Memorizar com carta -->
@@ -487,6 +514,7 @@
                     <input type="number" id="user-answer" class="answer-input" min="0">
                     <button id="check-answer">Verificar</button>
                 </div>
+                <div id="mult-feedback" class="answer-feedback hidden"></div>
                 
                 <div class="win-message hidden" id="mult-win">Parabéns! Você completou toda a tabuada!</div>
             </div>
@@ -560,6 +588,103 @@
                 </div>
                 
                 <div class="win-message hidden" id="div-win">Parabéns! Você completou toda a tabuada da divisão!</div>
+            </div>
+        </div>
+        
+        <!-- Jogo da Adição -->
+        <div id="addition-game" class="hidden">
+            <h2>Jogo da Adição</h2>
+            <div class="addition-options">
+                <p>Escolha um número para somar:</p>
+                <div class="number-buttons" id="addition-number-buttons">
+                    <!-- Botões de 0 a 10 serão adicionados via JavaScript -->
+                </div>
+                <div class="option-group">
+                    <input type="checkbox" id="random-add-option">
+                    <label for="random-add-option">Aleatório</label>
+                </div>
+                <div class="option-group">
+                    <input type="checkbox" id="custom-add-option">
+                    <label for="custom-add-option">Personalizar</label>
+                </div>
+                <button id="start-add" class="hidden">Iniciar</button>
+                <button id="back-add">Voltar</button>
+            </div>
+            
+            <!-- Modal para perguntas personalizadas -->
+            <div id="custom-questions-modal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; display: flex; justify-content: center; align-items: center;">
+                <div style="background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 90%;">
+                    <h3>Criar Perguntas Personalizadas</h3>
+                    <p>Pergunta <span id="current-question-number">1</span> de 10:</p>
+                    <div style="margin: 15px 0;">
+                        <label for="custom-question">Digite a pergunta:</label>
+                        <input type="text" id="custom-question" style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px;" placeholder="Ex: Quanto é 5 + 3?">
+                    </div>
+                    <div style="margin: 15px 0;">
+                        <label for="custom-answer">Digite a resposta:</label>
+                        <input type="number" id="custom-answer" style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px;" placeholder="Ex: 8">
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button id="add-custom-question" style="margin: 5px;">Adicionar Pergunta</button>
+                        <button id="cancel-custom" style="margin: 5px; background-color: #f44336;">Cancelar</button>
+                    </div>
+                    <div id="custom-progress" style="margin-top: 15px; text-align: center; color: #666;">Perguntas adicionadas: 0/10</div>
+                </div>
+            </div>
+            
+            <div id="addition-play" class="hidden">
+                <div class="score-display" id="add-score-display">Pontuação: 0/0 (0%)</div>
+                
+                <div class="card-piles">
+                    <div class="pile" id="add-question-pile">
+                        <span class="pile-title">Pergunta</span>
+                        <div id="add-question-card" class="card">
+                            <div class="card-inner">
+                                <div class="card-front"></div>
+                                <div class="card-back">
+                                    <div style="font-size: 36px; font-weight: bold;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="pile-count" id="add-question-count">Cartas: 0</span>
+                    </div>
+                    
+                    <div class="pile" id="add-answer-pile">
+                        <span class="pile-title">Resposta</span>
+                        <div id="add-answer-card" class="card">
+                            <div class="card-inner">
+                                <div class="card-front"></div>
+                                <div class="card-back">
+                                    <div style="font-size: 36px; font-weight: bold;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="pile-count" id="add-answer-count">Cartas: 0</span>
+                    </div>
+                    
+                    <div class="pile" id="add-image-pile">
+                        <span class="pile-title">Imagem</span>
+                        <div id="add-image-card" class="card">
+                            <div class="card-inner">
+                                <div class="card-front"></div>
+                                <div class="card-back">
+                                    <img class="card-image" src="">
+                                    <div class="card-code"></div>
+                                    <div class="card-name"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="pile-count" id="add-image-count">Cartas: 0</span>
+                    </div>
+                </div>
+                
+                <div class="answer-form">
+                    <label for="add-user-answer">Sua resposta:</label>
+                    <input type="number" id="add-user-answer" class="answer-input" min="0">
+                    <button id="add-check-answer">Verificar</button>
+                </div>
+                
+                <div class="win-message hidden" id="add-win">Parabéns! Você completou o jogo da adição!</div>
             </div>
         </div>
     </div>
@@ -738,10 +863,340 @@
             return colors[Math.floor(Math.random() * colors.length)];
         }
         
+        // Inicializar jogo da Adição
+        function initializeAdditionGame() {
+            console.log('Iniciando initializeAdditionGame');
+            
+            const numberButtons = document.getElementById('addition-number-buttons');
+            console.log('numberButtons:', numberButtons);
+            
+            const randomOption = document.getElementById('random-add-option');
+            console.log('randomOption:', randomOption);
+            
+            const customOption = document.getElementById('custom-add-option');
+            console.log('customOption:', customOption);
+            
+            const startButton = document.getElementById('start-add');
+            console.log('startButton:', startButton);
+            
+            const additionPlay = document.getElementById('addition-play');
+            console.log('additionPlay:', additionPlay);
+            
+            const additionOptions = document.querySelector('.addition-options');
+            console.log('additionOptions:', additionOptions);
+            
+            const scoreDisplay = document.getElementById('add-score-display');
+            const questionCard = document.getElementById('add-question-card');
+            const answerCard = document.getElementById('add-answer-card');
+            const imageCard = document.getElementById('add-image-card');
+            const questionCount = document.getElementById('add-question-count');
+            const answerCount = document.getElementById('add-answer-count');
+            const imageCount = document.getElementById('add-image-count');
+            const userAnswer = document.getElementById('add-user-answer');
+            const checkAnswer = document.getElementById('add-check-answer');
+            const winMessage = document.getElementById('add-win');
+            
+            if (!numberButtons) {
+                console.error('Elemento addition-number-buttons não encontrado!');
+                return;
+            }
+            
+            // Modal para perguntas personalizadas
+            const customModal = document.getElementById('custom-questions-modal');
+            const customQuestion = document.getElementById('custom-question');
+            const customAnswer = document.getElementById('custom-answer');
+            const addCustomQuestion = document.getElementById('add-custom-question');
+            const cancelCustom = document.getElementById('cancel-custom');
+            const currentQuestionNumber = document.getElementById('current-question-number');
+            const customProgress = document.getElementById('custom-progress');
+            
+            // Variáveis do jogo
+            let selectedTable = null;
+            let questions = [];
+            let customQuestions = [];
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let totalQuestions = 0;
+            let imageCardFlipped = false;
+            
+            // Limpar botões de números
+            numberButtons.innerHTML = '';
+            
+            // Adicionar botões de 0 a 10
+            for (let i = 0; i <= 10; i++) {
+                const button = document.createElement('div');
+                button.className = 'number-button';
+                button.textContent = i;
+                button.style.backgroundColor = getRandomColor();
+                
+                button.addEventListener('click', function() {
+                    // Selecionar número
+                    selectedTable = i;
+                    
+                    // Destacar botão selecionado
+                    const allButtons = numberButtons.querySelectorAll('.number-button');
+                    allButtons.forEach(btn => btn.style.border = 'none');
+                    button.style.border = '3px solid #333';
+                    
+                    // Mostrar botão iniciar
+                    startButton.classList.remove('hidden');
+                });
+                
+                numberButtons.appendChild(button);
+            }
+            let isCustomMode = false;
+            let customQuestionCount = 0;
+            
+            // Controlar opções mutuamente exclusivas
+            randomOption.addEventListener('change', function() {
+                if (randomOption.checked) {
+                    customOption.checked = false;
+                }
+            });
+            
+            customOption.addEventListener('change', function() {
+                if (customOption.checked) {
+                    randomOption.checked = false;
+                    // Abrir modal para criar perguntas personalizadas
+                    openCustomModal();
+                }
+            });
+            
+            // Abrir modal de perguntas personalizadas
+            function openCustomModal() {
+                customQuestions = [];
+                customQuestionCount = 0;
+                currentQuestionNumber.textContent = '1';
+                customProgress.textContent = 'Perguntas adicionadas: 0/10';
+                customQuestion.value = '';
+                customAnswer.value = '';
+                customModal.classList.remove('hidden');
+                customQuestion.focus();
+            }
+            
+            // Adicionar pergunta personalizada
+            addCustomQuestion.addEventListener('click', function() {
+                const question = customQuestion.value.trim();
+                const answer = parseInt(customAnswer.value);
+                
+                if (question && !isNaN(answer)) {
+                    customQuestions.push({
+                        question: question,
+                        result: answer
+                    });
+                    
+                    customQuestionCount++;
+                    currentQuestionNumber.textContent = (customQuestionCount + 1).toString();
+                    customProgress.textContent = `Perguntas adicionadas: ${customQuestionCount}/10`;
+                    
+                    customQuestion.value = '';
+                    customAnswer.value = '';
+                    customQuestion.focus();
+                    
+                    if (customQuestionCount >= 10) {
+                        customModal.classList.add('hidden');
+                        startButton.classList.remove('hidden');
+                    }
+                } else {
+                    alert('Por favor, preencha a pergunta e a resposta corretamente.');
+                }
+            });
+            
+            // Cancelar perguntas personalizadas
+            cancelCustom.addEventListener('click', function() {
+                customModal.classList.add('hidden');
+                customOption.checked = false;
+                customQuestions = [];
+                customQuestionCount = 0;
+            });
+            
+            // Permitir Enter nos campos do modal
+            customAnswer.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addCustomQuestion.click();
+                }
+            });
+            
+            // Iniciar jogo
+            startButton.addEventListener('click', function() {
+                if (customOption.checked && customQuestions.length === 10) {
+                    isCustomMode = true;
+                    questions = [...customQuestions];
+                } else if (selectedTable !== null) {
+                    isCustomMode = false;
+                    generateQuestions();
+                } else {
+                    return;
+                }
+                
+                // Esconder opções e mostrar jogo
+                additionOptions.classList.add('hidden');
+                additionPlay.classList.remove('hidden');
+                
+                // Iniciar jogo
+                currentQuestionIndex = 0;
+                score = 0;
+                imageCardFlipped = false;
+                
+                // Esconder mensagem de vitória
+                winMessage.classList.add('hidden');
+                
+                // Mostrar primeira pergunta
+                showQuestion();
+            });
+            
+            // Gerar perguntas da adição
+            function generateQuestions() {
+                questions = [];
+                
+                for (let i = 0; i <= 10; i++) {
+                    questions.push({
+                        table: selectedTable,
+                        addend: i,
+                        result: selectedTable + i,
+                        question: `${selectedTable} + ${i}`
+                    });
+                }
+                
+                // Embaralhar se opção aleatória estiver marcada
+                if (randomOption.checked) {
+                    shuffleArray(questions);
+                }
+                
+                totalQuestions = questions.length;
+                updateScore();
+            }
+            
+            // Mostrar pergunta atual
+            function showQuestion() {
+                // Resetar cartas
+                questionCard.classList.remove('flipped');
+                answerCard.classList.remove('flipped');
+                
+                if (currentQuestionIndex < questions.length) {
+                    const question = questions[currentQuestionIndex];
+                    
+                    // Mostrar pergunta na carta
+                    const questionBack = questionCard.querySelector('.card-back div');
+                    if (isCustomMode) {
+                        questionBack.textContent = question.question;
+                    } else {
+                        questionBack.textContent = question.question;
+                    }
+                    
+                    // Mostrar resposta na carta de resposta
+                    const answerBack = answerCard.querySelector('.card-back div');
+                    answerBack.textContent = question.result;
+                    
+                    // Mostrar imagem de referência apenas para modo não-personalizado
+                    if (!isCustomMode && cardsData && cardsData[question.result]) {
+                        const imageBack = imageCard.querySelector('.card-back');
+                        const img = imageBack.querySelector('.card-image');
+                        const code = imageBack.querySelector('.card-code');
+                        const name = imageBack.querySelector('.card-name');
+                        
+                        img.src = cardsData[question.result].image;
+                        code.textContent = cardsData[question.result].code;
+                        name.textContent = cardsData[question.result].name;
+                    }
+                    
+                    // Virar carta da pergunta
+                    questionCard.classList.add('flipped');
+                    
+                    // Atualizar contadores
+                    questionCount.textContent = `Cartas: ${currentQuestionIndex + 1}`;
+                    answerCount.textContent = `Cartas: 0`;
+                    imageCount.textContent = `Cartas: 0`;
+                    
+                    // Limpar campo de resposta
+                    userAnswer.value = '';
+                    userAnswer.focus();
+                } else {
+                    // Jogo terminado
+                    winMessage.classList.remove('hidden');
+                }
+            }
+            
+            // Atualizar pontuação
+            function updateScore() {
+                const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+                scoreDisplay.textContent = `Pontuação: ${score}/${totalQuestions} (${percentage}%)`;
+            }
+            
+            // Verificar resposta do usuário
+            function checkUserAnswer() {
+                const answer = parseInt(userAnswer.value);
+                const question = questions[currentQuestionIndex];
+                
+                if (!isNaN(answer)) {
+                    if (answer === question.result) {
+                        // Resposta correta
+                        score++;
+                        
+                        // Virar carta de resposta
+                        answerCard.classList.add('flipped');
+                        answerCount.textContent = `Cartas: 1`;
+                        
+                        // Virar carta de imagem apenas para modo não-personalizado
+                        if (!isCustomMode && !imageCardFlipped) {
+                            imageCard.classList.add('flipped');
+                            imageCount.textContent = `Cartas: 1`;
+                            imageCardFlipped = true;
+                        }
+                    } else {
+                        // Resposta incorreta
+                        userAnswer.style.color = 'red';
+                        userAnswer.value = 'Você errou! Tente novamente';
+                        setTimeout(() => {
+                            userAnswer.style.color = '';
+                            userAnswer.value = '';
+                            userAnswer.focus();
+                        }, 1500);
+                        return;
+                    }
+                    
+                    // Atualizar pontuação
+                    updateScore();
+                    
+                    // Avançar para próxima pergunta
+                    setTimeout(() => {
+                        questionCard.classList.remove('flipped');
+                        answerCard.classList.remove('flipped');
+                        if (!isCustomMode) {
+                            imageCard.classList.remove('flipped');
+                            imageCardFlipped = false;
+                        }
+                        
+                        currentQuestionIndex++;
+                        showQuestion();
+                    }, 1500);
+                }
+            }
+            
+            // Event listeners
+            checkAnswer.addEventListener('click', checkUserAnswer);
+            
+            userAnswer.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkUserAnswer();
+                }
+            });
+            
+            // Botão voltar
+            // Event listener duplicado removido - já existe na função initializeAdditionGame
+        }
+        
         // Inicializar quando o DOM estiver carregado
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 DOM carregado - iniciando configuração');
+            
             // Adicionar decorações
-            addDecorations();
+            try {
+                addDecorations();
+                console.log('✅ Decorações adicionadas com sucesso');
+            } catch (error) {
+                console.error('❌ Erro ao adicionar decorações:', error);
+            }
             
             // Botões de navegação
             document.getElementById('memorize-btn').addEventListener('click', function() {
@@ -761,6 +1216,37 @@
                 initializeMultiplicationGame();
             });
             
+            // Configurar botão de adição com logs de debug
+            const additionBtn = document.getElementById('addition-btn');
+            console.log('🔍 Botão de adição encontrado:', additionBtn ? 'SIM' : 'NÃO');
+            
+            if (additionBtn) {
+                additionBtn.addEventListener('click', function() {
+                    console.log('🖱️ BOTÃO DE ADIÇÃO CLICADO!');
+                    try {
+                        hideAllGames();
+                        console.log('✅ hideAllGames() executado');
+                        
+                        const additionGame = document.getElementById('addition-game');
+                        console.log('🔍 addition-game encontrado:', additionGame ? 'SIM' : 'NÃO');
+                        
+                        if (additionGame) {
+                            additionGame.classList.remove('hidden');
+                            console.log('✅ addition-game exibido');
+                        }
+                        
+                        initializeAdditionGame();
+                        console.log('✅ initializeAdditionGame() executado');
+                        
+                    } catch (error) {
+                        console.error('❌ ERRO no botão de adição:', error);
+                    }
+                });
+                console.log('✅ Event listener do botão de adição configurado');
+            } else {
+                console.error('❌ ERRO: Botão de adição não encontrado!');
+            }
+            
             document.getElementById('back-memorize').addEventListener('click', function() {
                 hideAllGames();
                 document.querySelector('.game-selection').classList.remove('hidden');
@@ -776,13 +1262,21 @@
                 document.querySelector('.game-selection').classList.remove('hidden');
             });
             
+            document.getElementById('back-add').addEventListener('click', function() {
+                hideAllGames();
+                document.querySelector('.game-selection').classList.remove('hidden');
+            });
+            
             function hideAllGames() {
                 document.getElementById('memorize-game').classList.add('hidden');
                 document.getElementById('memory-game').classList.add('hidden');
                 document.getElementById('multiplication-game').classList.add('hidden');
                 document.getElementById('multiplication-play').classList.add('hidden');
-                document.querySelector('.multiplication-options').classList.remove('hidden');
-                document.querySelector('.game-selection').classList.add('hidden');
+                document.getElementById('division-game').classList.add('hidden');
+                document.getElementById('division-play').classList.add('hidden');
+                document.getElementById('addition-game').classList.add('hidden');
+                document.getElementById('addition-play').classList.add('hidden');
+                document.querySelector('.game-selection').classList.remove('hidden');
             }
             
             // Inicializar jogo Memorizar com carta
@@ -1494,24 +1988,34 @@
             
             // Inicializar jogo da Multiplicação
             function initializeMultiplicationGame() {
-                const numberButtons = document.getElementById('number-buttons');
-                const randomOption = document.getElementById('random-mult-option');
-                const startButton = document.getElementById('start-mult');
-                const multiplicationPlay = document.getElementById('multiplication-play');
-                const multiplicationOptions = document.querySelector('.multiplication-options');
-                const scoreDisplay = document.getElementById('score-display');
-                const questionCard = document.getElementById('question-card');
-                const answerCard = document.getElementById('answer-card');
-                const imageCard = document.getElementById('image-card');
-                const questionCount = document.getElementById('question-count');
-                const answerCount = document.getElementById('answer-count');
-                const imageCount = document.getElementById('image-count');
-                const userAnswer = document.getElementById('user-answer');
-                const checkAnswer = document.getElementById('check-answer');
-                const winMessage = document.getElementById('mult-win');
+                console.log('🎮 Iniciando initializeMultiplicationGame()');
                 
-                // Limpar botões de números
-                numberButtons.innerHTML = '';
+                try {
+                    const numberButtons = document.getElementById('number-buttons');
+                    const randomOption = document.getElementById('random-mult-option');
+                    const startButton = document.getElementById('start-mult');
+                    const multiplicationPlay = document.getElementById('multiplication-play');
+                    const multiplicationOptions = document.querySelector('.multiplication-options');
+                    const scoreDisplay = document.getElementById('score-display');
+                    const questionCard = document.getElementById('question-card');
+                    const answerCard = document.getElementById('answer-card');
+                    const imageCard = document.getElementById('image-card');
+                    const questionCount = document.getElementById('question-count');
+                    const answerCount = document.getElementById('answer-count');
+                    const imageCount = document.getElementById('image-count');
+                    const userAnswer = document.getElementById('user-answer');
+                    const checkAnswer = document.getElementById('check-answer');
+                    const winMessage = document.getElementById('mult-win');
+                    const multFeedback = document.getElementById('mult-feedback');
+                    
+                    // Verificar se elementos críticos existem
+                    if (!numberButtons) {
+                        console.error('❌ ERRO: number-buttons não encontrado para multiplicação');
+                        return;
+                    }
+                    
+                    // Limpar botões de números
+                    numberButtons.innerHTML = '';
                 
                 // Adicionar botões de 0 a 9
                 for (let i = 0; i <= 9; i++) {
@@ -1612,6 +2116,15 @@
                         // Focar no campo de resposta
                         userAnswer.value = '';
                         userAnswer.focus();
+
+                        // Limpar feedback anterior
+                        if (multFeedback) {
+                            multFeedback.textContent = '';
+                            multFeedback.classList.add('hidden');
+                            multFeedback.classList.remove('error', 'success');
+                        }
+                        userAnswer.style.borderColor = '';
+                        userAnswer.style.backgroundColor = '';
                     } else {
                         // Jogo completo
                         winMessage.classList.remove('hidden');
@@ -1624,18 +2137,26 @@
                         const question = questions[currentQuestionIndex];
                         const answer = parseInt(userAnswer.value);
                         
-                        if (!isNaN(answer)) {
-                            // Virar carta de pergunta
+                        if (isNaN(answer)) {
+                            if (multFeedback) {
+                                multFeedback.textContent = 'Digite um número válido.';
+                                multFeedback.classList.remove('hidden', 'success');
+                                multFeedback.classList.add('error');
+                            }
+                            userAnswer.style.borderColor = '#d32f2f';
+                            userAnswer.style.backgroundColor = '#ffeaea';
+                            userAnswer.focus();
+                            return;
+                        }
+
+                        if (answer === question.result) {
+                            // Resposta correta: virar cartas e mostrar imagem
                             questionCard.classList.add('flipped');
-                            
-                            // Mostrar resposta correta
                             const answerBack = answerCard.querySelector('.card-back div');
                             answerBack.textContent = question.result;
                             answerCard.classList.add('flipped');
-                            
-                            // Mostrar imagem correspondente ao resultado
+
                             const imageResult = cardsData.find(card => {
-                                // Converter para string para comparar corretamente "00", "01", etc.
                                 return String(card.id) === String(question.result);
                             });
                             
@@ -1647,20 +2168,31 @@
                                 imageCard.classList.add('flipped');
                                 imageCardFlipped = true;
                             }
-                            
-                            // Verificar se resposta está correta
-                            if (answer === question.result) {
-                                score++;
-                            }
-                            
-                            // Atualizar pontuação
+
+                            score++;
                             updateScore();
-                            
-                            // Avançar para próxima pergunta após um tempo
+
+                            if (multFeedback) {
+                                multFeedback.textContent = 'Acertou!';
+                                multFeedback.classList.remove('hidden', 'error');
+                                multFeedback.classList.add('success');
+                            }
+
                             setTimeout(() => {
                                 currentQuestionIndex++;
                                 showQuestion();
                             }, 1500);
+                        } else {
+                            // Resposta incorreta: não avançar, mostrar feedback e focar novamente
+                            if (multFeedback) {
+                                multFeedback.textContent = 'Errou! Tente novamente.';
+                                multFeedback.classList.remove('hidden', 'success');
+                                multFeedback.classList.add('error');
+                            }
+                            userAnswer.style.borderColor = '#d32f2f';
+                            userAnswer.style.backgroundColor = '#ffeaea';
+                            userAnswer.focus();
+                            // Não avançar para a próxima pergunta
                         }
                     }
                 }
@@ -1680,7 +2212,13 @@
                         checkUserAnswer();
                     }
                 });
+                
+                console.log('✅ initializeMultiplicationGame() concluído com sucesso');
+                
+            } catch (error) {
+                console.error('❌ ERRO em initializeMultiplicationGame():', error);
             }
+        }
             
             // Inicializar jogo da Divisão
             function initializeDivisionGame() {
@@ -1787,6 +2325,7 @@
                     // Resetar cartas de pergunta e resposta
                     questionCard.classList.remove('flipped');
                     answerCard.classList.remove('flipped');
+                    imageCard.classList.remove('flipped');
                     
                     if (currentQuestionIndex < questions.length) {
                         const question = questions[currentQuestionIndex];
@@ -1885,7 +2424,8 @@
                 document.getElementById('division-game').classList.remove('hidden');
                 initializeDivisionGame();
             });
-        });
+
+        }); // Fim do DOMContentLoaded
     </script>
 </body>
 </html>
