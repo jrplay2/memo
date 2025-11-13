@@ -445,6 +445,7 @@
                     <label for="random-mult-option">Aleatório</label>
                 </div>
                 <button id="start-mult" class="hidden">Iniciar</button>
+                <button id="start-accounts">Iniciar Contas</button>
                 <button id="back-mult">Voltar</button>
             </div>
             
@@ -502,6 +503,22 @@
                 <div id="mult-feedback" class="answer-feedback hidden"></div>
                 
                 <div class="win-message hidden" id="mult-win">Parabéns! Você completou toda a tabuada!</div>
+            </div>
+
+            <!-- Modalidade Contas (multiplicações com dois números aleatórios) -->
+            <div id="accounts-play" class="hidden">
+                <div class="score-display" id="accounts-progress">Questão 1/10</div>
+                <div id="accounts-question" style="font-size: 24px; text-align: center; margin: 15px 0;">—</div>
+                <div class="answer-form">
+                    <label for="accounts-answer">Sua resposta:</label>
+                    <input type="number" id="accounts-answer" class="answer-input" min="0" />
+                    <button id="accounts-check">Verificar</button>
+                </div>
+                <div id="accounts-feedback" class="answer-feedback hidden"></div>
+                <div class="win-message hidden" id="accounts-win">Parabéns! Você concluiu as 10 contas!</div>
+                <div style="text-align:center; margin-top:10px;">
+                    <button id="back-accounts">Voltar</button>
+                </div>
             </div>
         
         <!-- Jogo da Divisão -->
@@ -1257,6 +1274,8 @@
                 document.getElementById('memory-game').classList.add('hidden');
                 document.getElementById('multiplication-game').classList.add('hidden');
                 document.getElementById('multiplication-play').classList.add('hidden');
+                const accPlay = document.getElementById('accounts-play');
+                if (accPlay) accPlay.classList.add('hidden');
                 document.getElementById('division-game').classList.add('hidden');
                 document.getElementById('division-play').classList.add('hidden');
                 document.getElementById('addition-game').classList.add('hidden');
@@ -1461,7 +1480,7 @@
                     8: "Cigarra",
                     9: "Copo",
                     10: "Cubo",
-                    11: "Baralho",
+                    11: "Dado",
                     12: "Desodorante spray",
                     13: "Dinamite",
                     14: "Dominó",
@@ -1979,6 +1998,7 @@
                     const numberButtons = document.getElementById('number-buttons');
                     const randomOption = document.getElementById('random-mult-option');
                     const startButton = document.getElementById('start-mult');
+                    const startAccountsBtn = document.getElementById('start-accounts');
                     const multiplicationPlay = document.getElementById('multiplication-play');
                     const multiplicationOptions = document.querySelector('.multiplication-options');
                     const scoreDisplay = document.getElementById('score-display');
@@ -1992,6 +2012,16 @@
                     const checkAnswer = document.getElementById('check-answer');
                     const winMessage = document.getElementById('mult-win');
                     const multFeedback = document.getElementById('mult-feedback');
+
+                    // Elementos da modalidade Contas
+                    const accountsPlay = document.getElementById('accounts-play');
+                    const accountsProgress = document.getElementById('accounts-progress');
+                    const accountsQuestion = document.getElementById('accounts-question');
+                    const accountsAnswer = document.getElementById('accounts-answer');
+                    const accountsCheck = document.getElementById('accounts-check');
+                    const accountsFeedback = document.getElementById('accounts-feedback');
+                    const accountsWin = document.getElementById('accounts-win');
+                    const backAccounts = document.getElementById('back-accounts');
                     
                     // Verificar se elementos críticos existem
                     if (!numberButtons) {
@@ -2031,6 +2061,102 @@
                 let score = 0;
                 let totalQuestions = 0;
                 let imageCardFlipped = false; // Flag para controlar se a carta de imagem está virada
+
+                // -----------------
+                // Modalidade Contas
+                // -----------------
+                let accQuestions = [];
+                let accIndex = 0;
+                
+                function generateAccountQuestions() {
+                    const qs = [];
+                    for (let i = 0; i < 10; i++) {
+                        const a = Math.floor(Math.random() * 991) + 10; // 10..1000
+                        const b = Math.floor(Math.random() * 991) + 10; // 10..1000
+                        qs.push({ a, b, result: a * b });
+                    }
+                    return qs;
+                }
+                
+                function showAccountQuestion() {
+                    const q = accQuestions[accIndex];
+                    accountsQuestion.textContent = `${q.a} × ${q.b}`;
+                    accountsProgress.textContent = `Questão ${accIndex + 1}/10`;
+                    accountsAnswer.value = '';
+                    accountsAnswer.focus();
+                    if (accountsFeedback) {
+                        accountsFeedback.textContent = '';
+                        accountsFeedback.classList.add('hidden');
+                        accountsFeedback.classList.remove('error', 'success');
+                    }
+                }
+                
+                function checkAccountsAnswer() {
+                    const q = accQuestions[accIndex];
+                    const ans = parseInt(accountsAnswer.value);
+                    if (isNaN(ans)) {
+                        if (accountsFeedback) {
+                            accountsFeedback.textContent = 'Digite um número válido.';
+                            accountsFeedback.classList.remove('hidden', 'success');
+                            accountsFeedback.classList.add('error');
+                        }
+                        accountsAnswer.style.borderColor = '#d32f2f';
+                        accountsAnswer.style.backgroundColor = '#ffeaea';
+                        accountsAnswer.focus();
+                        return;
+                    }
+                    if (ans === q.result) {
+                        if (accountsFeedback) {
+                            accountsFeedback.textContent = 'Acertou!';
+                            accountsFeedback.classList.remove('hidden', 'error');
+                            accountsFeedback.classList.add('success');
+                        }
+                        setTimeout(() => {
+                            accIndex++;
+                            if (accIndex >= accQuestions.length) {
+                                accountsWin.classList.remove('hidden');
+                            } else {
+                                showAccountQuestion();
+                            }
+                        }, 1000);
+                    } else {
+                        if (accountsFeedback) {
+                            accountsFeedback.textContent = 'Errou! Tente novamente.';
+                            accountsFeedback.classList.remove('hidden', 'success');
+                            accountsFeedback.classList.add('error');
+                        }
+                        accountsAnswer.style.borderColor = '#d32f2f';
+                        accountsAnswer.style.backgroundColor = '#ffeaea';
+                        accountsAnswer.focus();
+                    }
+                }
+                
+                if (startAccountsBtn) {
+                    startAccountsBtn.addEventListener('click', function() {
+                        multiplicationOptions.classList.add('hidden');
+                        accountsPlay.classList.remove('hidden');
+                        accountsWin.classList.add('hidden');
+                        accQuestions = generateAccountQuestions();
+                        accIndex = 0;
+                        showAccountQuestion();
+                    });
+                }
+                if (accountsCheck) {
+                    accountsCheck.addEventListener('click', checkAccountsAnswer);
+                }
+                if (accountsAnswer) {
+                    accountsAnswer.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            checkAccountsAnswer();
+                        }
+                    });
+                }
+                if (backAccounts) {
+                    backAccounts.addEventListener('click', function() {
+                        accountsPlay.classList.add('hidden');
+                        multiplicationOptions.classList.remove('hidden');
+                    });
+                }
                 
                 // Iniciar jogo
                 startButton.addEventListener('click', function() {
