@@ -337,6 +337,69 @@
             .pile { width: 180px; height: 240px; }
             .number-button { width: 40px; height: 40px; font-size: 16px; }
         }
+        
+        /* Responsividade para mobile - fileiras de 3 cartas */
+        @media (max-width: 600px) {
+            .memory-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px;
+                padding: 10px;
+            }
+            
+            .card {
+                width: 100px;
+                height: 140px;
+            }
+            
+            .card-front {
+                font-size: 24px;
+            }
+            
+            .card-image {
+                width: 70%;
+            }
+            
+            .game-options {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .game-options button {
+                width: 200px;
+                margin: 5px 0;
+            }
+            
+            .option-group {
+                flex-direction: column;
+                margin: 10px 0;
+            }
+            
+            #number-range-inputs {
+                flex-direction: column;
+                align-items: center;
+                margin-top: 10px;
+            }
+            
+            #number-range-inputs input {
+                margin: 5px 0;
+            }
+        }
+        
+        /* Mobile pequeno */
+        @media (max-width: 400px) {
+            .memory-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+            }
+            
+            .card {
+                width: 85px;
+                height: 119px;
+            }
+            
+            .card-front {
+                font-size: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -422,6 +485,16 @@
         <div id="memory-game" class="hidden">
             <h2>Jogo da Memória</h2>
             <div class="game-options">
+                <div class="option-group">
+                    <input type="checkbox" id="numbers-option">
+                    <label for="numbers-option">Números</label>
+                    <div id="number-range-inputs" class="hidden">
+                        <label for="memory-start-number">De:</label>
+                        <input type="number" id="memory-start-number" value="1" min="0" max="100" style="width: 60px; margin: 0 5px;">
+                        <label for="memory-end-number">Até:</label>
+                        <input type="number" id="memory-end-number" value="20" min="0" max="100" style="width: 60px; margin: 0 5px;">
+                    </div>
+                </div>
                 <button id="memory-8">8 cartas (2×4)</button>
                 <button id="memory-16">16 cartas (4×4)</button>
                 <button id="memory-25">25 cartas (5×5)</button>
@@ -1847,20 +1920,80 @@
                 initializeMemoryGame(36);
             });
             
+            // Controle da opção de números
+            const numbersOption = document.getElementById('numbers-option');
+            const numberRangeInputs = document.getElementById('number-range-inputs');
+            const memoryStartNumber = document.getElementById('memory-start-number');
+            const memoryEndNumber = document.getElementById('memory-end-number');
+            
+            numbersOption.addEventListener('change', function() {
+                if (numbersOption.checked) {
+                    numberRangeInputs.classList.remove('hidden');
+                } else {
+                    numberRangeInputs.classList.add('hidden');
+                }
+            });
+            
+            memoryStartNumber.addEventListener('change', updateMemoryButtons);
+            memoryEndNumber.addEventListener('change', updateMemoryButtons);
+            
+            function updateMemoryButtons() {
+                const start = parseInt(memoryStartNumber.value) || 0;
+                const end = parseInt(memoryEndNumber.value) || 100;
+                const totalNumbers = end - start + 1;
+                
+                // Desabilitar botões que excedem o número de cartas disponíveis
+                document.getElementById('memory-8').disabled = totalNumbers < 4;
+                document.getElementById('memory-16').disabled = totalNumbers < 8;
+                document.getElementById('memory-25').disabled = totalNumbers < 13;
+                document.getElementById('memory-36').disabled = totalNumbers < 18;
+            }
+            
             function initializeMemoryGame(cardCount) {
                 const memoryGrid = document.getElementById('memory-grid');
                 const winMessage = document.getElementById('memory-win');
                 
-                // Configurar grid baseado no número de cartas
+                // Verificar se a opção de números está ativa
+                const useNumberRange = numbersOption.checked;
+                let startNumber = 0;
+                let endNumber = 100;
+                
+                if (useNumberRange) {
+                    startNumber = parseInt(memoryStartNumber.value) || 0;
+                    endNumber = parseInt(memoryEndNumber.value) || 100;
+                    
+                    // Validar intervalo
+                    if (startNumber > endNumber) {
+                        alert('O número inicial deve ser menor ou igual ao número final.');
+                        return;
+                    }
+                    
+                    // Calcular quantidade de números disponíveis
+                    const availableNumbers = endNumber - startNumber + 1;
+                    if (availableNumbers < cardCount / 2) {
+                        alert(`Intervalo muito pequeno! Selecione pelo menos ${cardCount / 2} números.`);
+                        return;
+                    }
+                }
+                
+                // Configurar grid baseado no número de cartas e responsividade
                 let gridColumns;
-                if (cardCount === 8) {
-                    gridColumns = 4; // 2x4
-                } else if (cardCount === 16) {
-                    gridColumns = 4; // 4x4
-                } else if (cardCount === 25) {
-                    gridColumns = 5; // 5x5
-                } else if (cardCount === 36) {
-                    gridColumns = 6; // 6x6
+                const isMobile = window.innerWidth <= 600;
+                
+                if (isMobile) {
+                    // No mobile, sempre fileiras de 3 cartas
+                    gridColumns = 3;
+                } else {
+                    // No desktop, manter layout original
+                    if (cardCount === 8) {
+                        gridColumns = 4; // 2x4
+                    } else if (cardCount === 16) {
+                        gridColumns = 4; // 4x4
+                    } else if (cardCount === 25) {
+                        gridColumns = 5; // 5x5
+                    } else if (cardCount === 36) {
+                        gridColumns = 6; // 6x6
+                    }
                 }
                 
                 memoryGrid.style.gridTemplateColumns = `repeat(${gridColumns}, 1fr)`;
@@ -1873,9 +2006,17 @@
                 let gameCards = [];
                 let selectedCards = [];
                 
-                // Para o jogo da memória, usamos pares de cartas: números e imagens
-                // Selecionar cartas aleatórias do conjunto completo
+                // Filtrar cartas baseado no intervalo de números se ativado
                 let availableCards = [...cardsData];
+                
+                if (useNumberRange) {
+                    availableCards = availableCards.filter(card => {
+                        const cardId = parseInt(card.id);
+                        return cardId >= startNumber && cardId <= endNumber;
+                    });
+                }
+                
+                // Embaralhar e selecionar cartas
                 shuffleArray(availableCards);
                 availableCards = availableCards.slice(0, cardCount / 2);
                 
