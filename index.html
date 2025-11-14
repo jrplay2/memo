@@ -413,6 +413,7 @@
             <button id="division-btn">Jogo da Divisão</button>
             <button id="addition-btn">Jogo da Adição</button>
             <button id="portuguese-ssc-btn">Português S/SS/Ç</button>
+            <button id="states-btn">Jogo dos Estados</button>
         </div>
         
         <!-- Jogo Memorizar com carta -->
@@ -1313,8 +1314,15 @@
                 hideAllGames();
                 document.getElementById('portugues-ssc-game').classList.remove('hidden');
                 document.querySelector('.game-selection').classList.add('hidden');
+                try {
+                    initializePortugueseSSCGame();
+                } catch (e) {}
                 const startPortuguese = document.getElementById('start-portuguese');
                 if (startPortuguese) startPortuguese.click();
+            });
+
+            document.getElementById('states-btn').addEventListener('click', function() {
+                window.location.href = 'jogo_estados_capitais.html';
             });
 
             try {
