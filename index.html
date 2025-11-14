@@ -1281,6 +1281,21 @@
         // Inicializar quando o DOM estiver carregado
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 DOM carregado - iniciando configuração');
+            try {
+                const qs = new URLSearchParams(window.location.search);
+                if (qs.get('game') === 'portugues-ssc') {
+                    const selectionEl = document.querySelector('.game-selection');
+                    if (selectionEl) selectionEl.classList.add('hidden');
+                    const sectionEl = document.getElementById('portugues-ssc-game');
+                    if (sectionEl) {
+                        sectionEl.classList.remove('hidden');
+                        sectionEl.style.display = 'block';
+                        try { initializePortugueseSSCGame(); } catch (e) {}
+                        const startBtn = document.getElementById('start-portuguese');
+                        if (startBtn) startBtn.click();
+                    }
+                }
+            } catch (e) {}
             const selection = document.querySelector('.game-selection');
             if (selection) selection.classList.remove('hidden');
             
