@@ -1280,6 +1280,8 @@
         // Inicializar quando o DOM estiver carregado
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 DOM carregado - iniciando configuração');
+            const selection = document.querySelector('.game-selection');
+            if (selection) selection.classList.remove('hidden');
             
             // Adicionar decorações
             try {
@@ -1314,6 +1316,18 @@
                 const startPortuguese = document.getElementById('start-portuguese');
                 if (startPortuguese) startPortuguese.click();
             });
+
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const gameParam = params.get('game');
+                if (gameParam === 'portugues-ssc') {
+                    hideAllGames();
+                    document.getElementById('portugues-ssc-game').classList.remove('hidden');
+                    document.querySelector('.game-selection').classList.add('hidden');
+                    const startPortuguese = document.getElementById('start-portuguese');
+                    if (startPortuguese) startPortuguese.click();
+                }
+            } catch (e) {}
             
             // Configurar botão de adição com logs de debug
             const additionBtn = document.getElementById('addition-btn');

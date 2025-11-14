@@ -66,7 +66,7 @@
       <a class="dropdown-item" href="/jogo_sistema_nervoso.html" role="menuitem">Sistema Nervoso</a>
       <a class="dropdown-item" href="/jogo_diverso.html" role="menuitem">Diversos</a>
       <a class="dropdown-item" href="/jogo_geografia.html" role="menuitem">Geografia</a>
-      <a class="dropdown-item" href="/jogo_portugues.html" role="menuitem">Português</a>
+      <a class="dropdown-item" href="/index.html?game=portugues-ssc" role="menuitem">Português S/SS/Ç</a>
       <div class="dropdown-section-title">Jogos (cod/1)</div>
       <a class="dropdown-item" href="/cod/1/jogo_adicao.html" role="menuitem">Adição (cod/1)</a>
       <a class="dropdown-item" href="/cod/1/jogo_divisao.html" role="menuitem">Divisão (cod/1)</a>
