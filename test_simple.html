@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Simples</title>
+</head>
+<body>
+    <h1>Teste de Funcionamento</h1>
+    <button id="test-btn">Clique Aqui</button>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM carregado com sucesso!');
+            
+            const btn = document.getElementById('test-btn');
+            if (btn) {
+                console.log('Botão encontrado!');
+                btn.addEventListener('click', function() {
+                    alert('Funcionando!');
+                    console.log('Botão clicado!');
+                });
+            } else {
+                console.error('Botão não encontrado!');
+            }
+        });
+    </script>
+</body>
+</html>

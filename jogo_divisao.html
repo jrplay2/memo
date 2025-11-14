@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Divisão</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .division-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .horizontal-layout {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .number-input {
+            width: 120px;
+            height: 80px;
+            font-size: 2em;
+            text-align: center;
+            border: 4px solid;
+            border-radius: 15px;
+            outline: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .dividend {
+            border-color: #e74c3c;
+            background-color: #ffebee;
+        }
+
+        .dividend:focus {
+            border-color: #c0392b;
+            background-color: #ffcdd2;
+            transform: scale(1.05);
+        }
+
+        .divisor {
+            border-color: #27ae60;
+            background-color: #e8f5e8;
+        }
+
+        .divisor:focus {
+            border-color: #229954;
+            background-color: #c8e6c9;
+            transform: scale(1.05);
+        }
+
+        .division-symbol {
+            font-size: 3em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .divide-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.5em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .divide-button:hover {
+            background-color: #34495e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .divide-button:active {
+            transform: translateY(0);
+        }
+
+        .result-container {
+            margin-top: 30px;
+        }
+
+        .result-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .result-digit {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            background-color: #e3f2fd;
+            color: #1976d2;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .result-digit:focus {
+            border-color: #1976d2;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+        }
+
+        .result-digit.correct {
+            background-color: #c8e6c9;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        .result-digit.incorrect {
+            background-color: #ffcdd2;
+            border-color: #f44336;
+            color: #c62828;
+        }
+
+        .remainder-digit {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #424242;
+            border-radius: 8px;
+            background-color: #f5f5f5;
+            color: #212121;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .remainder-digit:focus {
+            border-color: #212121;
+            box-shadow: 0 0 0 3px rgba(66, 66, 66, 0.2);
+        }
+
+        .remainder-digit.correct {
+            background-color: #c8e6c9;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        .remainder-digit.incorrect {
+            background-color: #ffcdd2;
+            border-color: #f44336;
+            color: #c62828;
+        }
+
+        .remainder-label {
+            font-size: 14px;
+            color: #424242;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .result-label {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 1.1em;
+            margin-top: 10px;
+            font-weight: bold;
+            min-height: 25px;
+        }
+
+        .clear-button, .result-button {
+            background-color: #95a5a6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .clear-button:hover {
+            background-color: #7f8c8d;
+            transform: translateY(-1px);
+        }
+
+        .result-button {
+            background-color: #ff9800;
+        }
+
+        .result-button:hover {
+            background-color: #f57c00;
+            transform: translateY(-1px);
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #e67e22;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #d35400;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .number-input {
+                width: 100px;
+                height: 60px;
+                font-size: 1.5em;
+            }
+
+            .result-input {
+                width: 150px;
+                height: 60px;
+                font-size: 1.5em;
+            }
+
+            .input-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .division-symbol {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="goBack()">← Voltar</button>
+    <button class="divide-button" onclick="performDivision()">Dividir</button>
+    
+    <div class="game-container">
+        <h1>🔢 Jogo da Divisão</h1>
+        
+        <div class="division-area">
+            <div class="input-row">
+                <input type="number" class="number-input dividend" id="dividend" placeholder="0" min="0">
+                <input type="number" class="number-input divisor" id="divisor" placeholder="0" min="1">
+            </div>
+            
+            <div class="input-row" style="justify-content: flex-end;">
+                <div style="width: 120px;"></div>
+                <div id="result-container" class="result-container">
+                    <!-- Os campos de resultado serão criados dinamicamente aqui -->
+                </div>
+            </div>
+            
+            <div class="input-row" style="justify-content: center; margin-top: 15px;">
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <div class="remainder-label">Resto</div>
+                    <div id="remainder-container" class="result-container">
+                        <!-- Os campos de resto serão criados dinamicamente aqui -->
+                    </div>
+                </div>
+            </div>
+            
+            <button class="clear-button" onclick="clearAll()">Limpar</button>
+            <button class="result-button" onclick="checkResult()">Resultado</button>
+            
+            <div class="error-message" id="errorMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        let gameState = {
+            dividend: '',
+            divisor: 0,
+            dividendDigits: [],
+            selectedDigits: [],
+            currentQuotientIndex: 0,
+            quotientDigits: [],
+            currentStep: 'input', // 'input', 'selecting', 'multiplying', 'subtracting'
+            multiplicationResult: 0,
+            subtractionInputs: [],
+            remainderValue: 0,
+            carryOver: 0
+        };
+
+        function performDivision() {
+            const dividendInput = document.getElementById('dividend');
+            const divisorInput = document.getElementById('divisor');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Limpar mensagem de erro anterior
+            errorMessage.textContent = '';
+            
+            // Obter valores
+            const dividend = dividendInput.value;
+            const divisor = parseInt(divisorInput.value);
+            
+            // Validações
+            if (!dividend || dividend === '') {
+                errorMessage.textContent = 'Por favor, digite o primeiro número (dividendo)';
+                dividendInput.focus();
+                return;
+            }
+            
+            if (isNaN(divisor) || divisorInput.value === '') {
+                errorMessage.textContent = 'Por favor, digite o segundo número (divisor)';
+                divisorInput.focus();
+                return;
+            }
+            
+            if (divisor === 0) {
+                errorMessage.textContent = 'Não é possível dividir por zero!';
+                divisorInput.focus();
+                return;
+            }
+            
+            // Inicializar estado do jogo
+            gameState.dividend = dividend;
+            gameState.divisor = divisor;
+            gameState.dividendDigits = dividend.split('').map(d => parseInt(d));
+            gameState.selectedDigits = [];
+            gameState.currentQuotientIndex = 0;
+            gameState.quotientDigits = [];
+            gameState.currentStep = 'selecting';
+            
+            // Criar interface de divisão longa
+            createLongDivisionInterface();
+        }
+
+        function createLongDivisionInterface() {
+            const container = document.querySelector('.division-area');
+            
+            // Limpar interface anterior
+            const existingDivision = document.getElementById('long-division-container');
+            if (existingDivision) {
+                existingDivision.remove();
+            }
+            
+            // Criar container principal da divisão longa
+            const divisionContainer = document.createElement('div');
+            divisionContainer.id = 'long-division-container';
+            divisionContainer.style.cssText = `
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+                margin: 30px 0;
+                padding: 20px;
+                border: 2px solid #ddd;
+                border-radius: 15px;
+                background-color: #f9f9f9;
+            `;
+            
+            // Criar linha superior com dividendo separado e divisor
+            const topRow = document.createElement('div');
+            topRow.style.cssText = 'display: flex; align-items: center; gap: 20px; margin-bottom: 20px;';
+            
+            // Container do dividendo (números separados)
+            const dividendContainer = document.createElement('div');
+            dividendContainer.id = 'dividend-digits-container';
+            dividendContainer.style.cssText = 'display: flex; gap: 5px;';
+            
+            gameState.dividendDigits.forEach((digit, index) => {
+                const digitBox = document.createElement('div');
+                digitBox.className = 'dividend-digit';
+                digitBox.textContent = digit;
+                digitBox.dataset.index = index;
+                digitBox.style.cssText = `
+                    width: 50px;
+                    height: 50px;
+                    border: 2px solid #e74c3c;
+                    border-radius: 8px;
+                    background-color: #ffebee;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 24px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                `;
+                
+                digitBox.addEventListener('click', () => selectDividendDigit(index));
+                dividendContainer.appendChild(digitBox);
+            });
+            
+            // Divisor
+            const divisorBox = document.createElement('div');
+            divisorBox.style.cssText = `
+                width: 80px;
+                height: 50px;
+                border: 2px solid #27ae60;
+                border-radius: 8px;
+                background-color: #e8f5e8;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+                font-weight: bold;
+                margin-left: 20px;
+            `;
+            divisorBox.textContent = gameState.divisor;
+            
+            topRow.appendChild(dividendContainer);
+            topRow.appendChild(divisorBox);
+            
+            // Container do quociente (resultado)
+            const quotientContainer = document.createElement('div');
+            quotientContainer.id = 'quotient-container';
+            quotientContainer.style.cssText = 'display: flex; gap: 5px; margin-bottom: 20px;';
+            
+            // Criar campos do quociente baseado no número de dígitos esperados
+            const expectedQuotientLength = Math.max(1, gameState.dividendDigits.length - gameState.divisor.toString().length + 1);
+            for (let i = 0; i < expectedQuotientLength; i++) {
+                const quotientInput = document.createElement('input');
+                quotientInput.type = 'text';
+                quotientInput.className = 'quotient-digit';
+                quotientInput.id = `quotient-${i}`;
+                quotientInput.maxLength = 1;
+                quotientInput.dataset.index = i;
+                quotientInput.style.cssText = `
+                    width: 50px;
+                    height: 50px;
+                    border: 2px solid #2196f3;
+                    border-radius: 8px;
+                    background-color: #e3f2fd;
+                    text-align: center;
+                    font-size: 24px;
+                    font-weight: bold;
+                    outline: none;
+                `;
+                
+                quotientInput.addEventListener('input', (e) => handleQuotientInput(e, i));
+                quotientContainer.appendChild(quotientInput);
+            }
+            
+            // Container para mostrar multiplicação
+            const multiplicationContainer = document.createElement('div');
+            multiplicationContainer.id = 'multiplication-container';
+            multiplicationContainer.style.cssText = 'display: none; margin: 10px 0;';
+            
+            // Container para subtração
+            const subtractionContainer = document.createElement('div');
+            subtractionContainer.id = 'subtraction-container';
+            subtractionContainer.style.cssText = 'display: none; margin: 10px 0;';
+            
+            // Container do resto final
+            const remainderContainer = document.createElement('div');
+            remainderContainer.id = 'final-remainder-container';
+            remainderContainer.style.cssText = 'display: flex; flex-direction: column; align-items: center; margin-top: 20px;';
+            
+            const remainderLabel = document.createElement('div');
+            remainderLabel.textContent = 'Resto';
+            remainderLabel.style.cssText = 'font-size: 16px; font-weight: bold; margin-bottom: 10px;';
+            
+            const remainderInput = document.createElement('input');
+            remainderInput.type = 'text';
+            remainderInput.id = 'remainder-input';
+            remainderInput.style.cssText = `
+                width: 80px;
+                height: 50px;
+                border: 2px solid #424242;
+                border-radius: 8px;
+                background-color: #f5f5f5;
+                text-align: center;
+                font-size: 24px;
+                font-weight: bold;
+                outline: none;
+            `;
+            
+            remainderContainer.appendChild(remainderLabel);
+            remainderContainer.appendChild(remainderInput);
+            
+            // Montar interface
+            divisionContainer.appendChild(topRow);
+            divisionContainer.appendChild(quotientContainer);
+            divisionContainer.appendChild(multiplicationContainer);
+            divisionContainer.appendChild(subtractionContainer);
+            divisionContainer.appendChild(remainderContainer);
+            
+            container.appendChild(divisionContainer);
+            
+            // Instruções
+            showInstructions('Selecione os dígitos do dividendo da esquerda para a direita para começar a divisão.');
+            
+            // Criar e posicionar seta indicadora
+            createStepArrow();
+            updateArrowPosition();
+        }
+
+        function selectDividendDigit(index) {
+            if (gameState.currentStep !== 'selecting') {
+                return;
+            }
+            
+            const digitBoxes = document.querySelectorAll('.dividend-digit');
+            const clickedBox = digitBoxes[index];
+            
+            // Verificar se o dígito já foi selecionado (tem cor verde)
+            const isAlreadySelected = clickedBox && (clickedBox.style.backgroundColor === 'rgb(200, 230, 201)' || 
+                                                    clickedBox.style.backgroundColor === '#c8e6c9' ||
+                                                    clickedBox.style.backgroundColor.includes('200, 230, 201') ||
+                                                    clickedBox.style.backgroundColor.includes('c8e6c9'));
+            
+            if (isAlreadySelected) {
+                showInstructions('Este dígito já foi usado. Selecione o próximo dígito disponível.');
+                return;
+            }
+            
+            // Verificar se é uma seleção válida (da esquerda para direita)
+            if (gameState.selectedDigits.length === 0) {
+                // Primeira seleção - encontrar o próximo dígito disponível
+                let nextAvailableIndex = -1;
+                for (let i = 0; i < gameState.dividendDigits.length; i++) {
+                    const digitBox = document.querySelector(`.dividend-digit[data-index="${i}"]`);
+                    const isUsed = digitBox && (digitBox.style.backgroundColor === 'rgb(200, 230, 201)' || 
+                                               digitBox.style.backgroundColor === '#c8e6c9' ||
+                                               digitBox.style.backgroundColor.includes('200, 230, 201') ||
+                                               digitBox.style.backgroundColor.includes('c8e6c9'));
+                    if (!isUsed) {
+                        nextAvailableIndex = i;
+                        break;
+                    }
+                }
+                
+                if (index !== nextAvailableIndex) {
+                    showInstructions('Selecione o próximo dígito disponível da esquerda para a direita.');
+                    return;
+                }
+            } else {
+                // Seleções subsequentes devem ser consecutivas
+                const lastSelected = gameState.selectedDigits[gameState.selectedDigits.length - 1];
+                if (index !== lastSelected + 1) {
+                    showInstructions('Selecione os dígitos consecutivamente da esquerda para a direita.');
+                    return;
+                }
+            }
+            
+            // Adicionar à seleção
+            gameState.selectedDigits.push(index);
+            
+            // Atualizar posição da seta
+            updateArrowPosition();
+            
+            // Verificar se pode ser dividido
+            const selectedValue = getSelectedValue();
+            
+            if (selectedValue < gameState.divisor) {
+                // Não pode ser dividido - marcar como vermelho
+                clickedBox.style.backgroundColor = '#ffcdd2';
+                clickedBox.style.borderColor = '#f44336';
+                
+                if (index < gameState.dividendDigits.length - 1) {
+                    showInstructions('Este número é menor que o divisor. Selecione o próximo dígito.');
+                } else {
+                    showInstructions('Não há mais dígitos. Este será o resto.');
+                    finalizeDivision();
+                }
+            } else {
+                // Pode ser dividido - marcar como verde
+                gameState.selectedDigits.forEach(i => {
+                    digitBoxes[i].style.backgroundColor = '#c8e6c9';
+                    digitBoxes[i].style.borderColor = '#4caf50';
+                });
+                
+                // Se havia carryOver, limpar após usar
+                if (gameState.carryOver && gameState.carryOver > 0) {
+                    gameState.carryOver = 0;
+                    // Avançar para o próximo campo do quociente
+                    gameState.currentQuotientIndex++;
+                }
+                
+                // Focar no campo do quociente atual
+                const quotientInputs = document.querySelectorAll('.quotient-digit');
+                if (quotientInputs[gameState.currentQuotientIndex]) {
+                    quotientInputs[gameState.currentQuotientIndex].focus();
+                    gameState.currentStep = 'multiplying';
+                    showInstructions('Digite um número no campo azul do quociente.');
+                    updateArrowPosition();
+                }
+            }
+        }
+        
+        function getSelectedValue() {
+            let value = '';
+            
+            // Se há carryOver (número que desceu), incluí-lo primeiro
+            if (gameState.carryOver && gameState.carryOver > 0) {
+                value = gameState.carryOver.toString();
+            }
+            
+            // Adicionar os dígitos selecionados
+            gameState.selectedDigits.forEach(index => {
+                value += gameState.dividendDigits[index].toString();
+            });
+            
+            return parseInt(value) || 0;
+        }
+        
+        function handleQuotientInput(event, index) {
+            const value = event.target.value;
+            
+            // Permitir apenas números
+            if (!/^[0-9]$/.test(value) && value !== '') {
+                event.target.value = '';
+                return;
+            }
+            
+            // Resetar estilos
+            event.target.style.backgroundColor = '';
+            event.target.style.borderColor = '';
+            
+            if (value && index === gameState.currentQuotientIndex) {
+                const quotientDigit = parseInt(value);
+                gameState.quotientDigits[index] = quotientDigit;
+                
+                // Calcular multiplicação
+                const multiplicationResult = quotientDigit * gameState.divisor;
+                gameState.multiplicationResult = multiplicationResult;
+                
+                // Sempre mostrar resultado da multiplicação atualizado
+                displayMultiplicationResult(multiplicationResult);
+                
+                // Calcular o quociente correto para este passo
+                const selectedValue = getSelectedValue();
+                const correctQuotient = Math.floor(selectedValue / gameState.divisor);
+                
+                // Verificar se o usuário digitou o número correto
+                if (quotientDigit === correctQuotient && multiplicationResult <= selectedValue) {
+                    // Correto - mostrar em verde
+                    event.target.style.backgroundColor = '#c8e6c9';
+                    event.target.style.borderColor = '#4caf50';
+                    
+                    // Preparar para subtração apenas se ainda não estiver subtraindo
+                    if (gameState.currentStep === 'multiplying') {
+                        gameState.currentStep = 'subtracting';
+                        showSubtractionInputs(selectedValue, multiplicationResult);
+                        showInstructions('Correto! Agora faça a subtração nos campos pretos.');
+                        updateArrowPosition();
+                    } else if (gameState.currentStep === 'subtracting') {
+                        // Atualizar subtração existente
+                        showSubtractionInputs(selectedValue, multiplicationResult);
+                    }
+                } else {
+                    // Incorreto - mostrar em vermelho
+                    event.target.style.backgroundColor = '#ffcdd2';
+                    event.target.style.borderColor = '#f44336';
+                    
+                    if (multiplicationResult > selectedValue) {
+                        showInstructions('Este número é muito grande. Tente um número menor.');
+                    } else {
+                        showInstructions(`Não é o número correto. Tente ${correctQuotient}.`);
+                    }
+                    
+                    // Limpar subtração se existir
+                    const subtractionContainer = document.getElementById('subtraction-container');
+                    if (subtractionContainer) {
+                        subtractionContainer.style.display = 'none';
+                    }
+                    gameState.currentStep = 'multiplying';
+                }
+            } else if (!value) {
+                // Limpar multiplicação e subtração quando campo estiver vazio
+                const multiplicationContainer = document.getElementById('multiplication-container');
+                const subtractionContainer = document.getElementById('subtraction-container');
+                if (multiplicationContainer) multiplicationContainer.style.display = 'none';
+                if (subtractionContainer) subtractionContainer.style.display = 'none';
+                gameState.currentStep = 'multiplying';
+            }
+        }
+        
+        function displayMultiplicationResult(result) {
+            const container = document.getElementById('multiplication-container');
+            container.style.display = 'block';
+            container.innerHTML = `
+                <div style="text-align: center; font-size: 18px; font-weight: bold; color: #333;">
+                    ${gameState.quotientDigits[gameState.currentQuotientIndex]} × ${gameState.divisor} = ${result}
+                </div>
+            `;
+        }
+        
+        function showSubtractionInputs(minuend, subtrahend) {
+            const container = document.getElementById('subtraction-container');
+            container.style.display = 'block';
+            
+            const minuendStr = minuend.toString();
+            const subtrahendStr = subtrahend.toString();
+            const maxLength = Math.max(minuendStr.length, subtrahendStr.length);
+            
+            container.innerHTML = `
+                <div style="text-align: center; margin-bottom: 10px;">
+                    <div style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">${minuend}</div>
+                    <div style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">- ${subtrahend}</div>
+                    <div style="border-top: 2px solid #333; padding-top: 5px;">
+                        <input type="text" id="subtraction-result" style="
+                            width: 80px;
+                            height: 40px;
+                            border: 2px solid #424242;
+                            border-radius: 8px;
+                            background-color: #f5f5f5;
+                            text-align: center;
+                            font-size: 18px;
+                            font-weight: bold;
+                            outline: none;
+                        " placeholder="?">
+                    </div>
+                </div>
+            `;
+            
+            const subtractionInput = document.getElementById('subtraction-result');
+            subtractionInput.addEventListener('input', (e) => handleSubtractionInput(e, minuend - subtrahend));
+            subtractionInput.focus();
+            updateArrowPosition();
+        }
+        
+        function handleSubtractionInput(event, correctResult) {
+            const value = parseInt(event.target.value);
+            
+            if (isNaN(value)) return;
+            
+            if (value === correctResult) {
+                // Correto
+                event.target.style.backgroundColor = '#c8e6c9';
+                event.target.style.borderColor = '#4caf50';
+                
+                // Continuar para próximo passo
+                proceedToNextStep(correctResult);
+            } else {
+                // Incorreto
+                event.target.style.backgroundColor = '#ffcdd2';
+                event.target.style.borderColor = '#f44336';
+                showInstructions('Resultado da subtração incorreto. Tente novamente.');
+            }
+        }
+        
+        function proceedToNextStep(subtractionResult) {
+            // Limpar seleção atual
+            gameState.selectedDigits = [];
+            
+            // Encontrar o próximo dígito disponível do dividendo
+            let nextAvailableDigitIndex = -1;
+            for (let i = 0; i < gameState.dividendDigits.length; i++) {
+                const digitBox = document.querySelector(`.dividend-digit[data-index="${i}"]`);
+                // Verificar se o dígito não foi selecionado (não tem cor verde)
+                const isSelected = digitBox && (digitBox.style.backgroundColor === 'rgb(200, 230, 201)' || 
+                                              digitBox.style.backgroundColor === '#c8e6c9' ||
+                                              digitBox.style.backgroundColor.includes('200, 230, 201') ||
+                                              digitBox.style.backgroundColor.includes('c8e6c9'));
+                if (digitBox && !isSelected) {
+                    nextAvailableDigitIndex = i;
+                    break;
+                }
+            }
+            
+            if (nextAvailableDigitIndex !== -1) {
+                // Há mais dígitos disponíveis
+                gameState.carryOver = subtractionResult;
+                gameState.currentQuotientIndex++;
+                gameState.currentStep = 'selecting';
+                
+                // Sempre mostrar o próximo dígito descendo visualmente
+                showNextDigitDescending(nextAvailableDigitIndex);
+                
+                if (subtractionResult === 0) {
+                    showInstructions('Clique no próximo dígito para continuar a divisão.');
+                } else {
+                    console.log('Resultado não zero:', subtractionResult, 'próximo índice:', nextAvailableDigitIndex);
+                    showInstructions('O resultado ' + subtractionResult + ' desce. Clique no próximo dígito.');
+                }
+                updateArrowPosition();
+            } else {
+                // Não há mais dígitos - verificar se todos os quadrados azuis estão preenchidos
+                const allQuotientsFilled = checkAllQuotientsComplete();
+                if (allQuotientsFilled) {
+                    // Divisão concluída
+                    if (subtractionResult > 0) {
+                        document.getElementById('remainder-input').value = subtractionResult;
+                    }
+                    showInstructions('Divisão concluída!');
+                    gameState.currentStep = 'completed';
+                    hideStepArrow();
+                } else {
+                    // Ainda há quadrados azuis para preencher
+                    const quotientInputs = document.querySelectorAll('[id^="quotient-"]');
+                    if (gameState.currentQuotientIndex < quotientInputs.length - 1) {
+                        gameState.currentQuotientIndex++;
+                        gameState.currentStep = 'multiplying';
+                        showInstructions('Digite o próximo número no quadrado azul.');
+                        updateArrowPosition();
+                    } else {
+                        // Já estamos no último campo do quociente - finalizar divisão
+                        if (subtractionResult > 0) {
+                            document.getElementById('remainder-input').value = subtractionResult;
+                        }
+                        showInstructions('Divisão concluída!');
+                        gameState.currentStep = 'completed';
+                        hideStepArrow();
+                    }
+                }
+            }
+        }
+        
+        function checkAllQuotientsComplete() {
+            const quotientInputs = document.querySelectorAll('[id^="quotient-"]');
+            for (let input of quotientInputs) {
+                if (!input.value || input.value.trim() === '') {
+                    return false;
+                }
+            }
+            return true;
+        }
+        
+        function showNextDigitDescending(nextDigitIndex) {
+            console.log('showNextDigitDescending chamada para índice:', nextDigitIndex);
+            
+            // Remover indicador visual anterior se existir
+            const existingIndicator = document.querySelector('.descending-digit-indicator');
+            if (existingIndicator) {
+                existingIndicator.remove();
+            }
+            
+            // Obter o valor do próximo dígito
+            const nextDigitBox = document.querySelector(`.dividend-digit[data-index="${nextDigitIndex}"]`);
+            console.log('Procurando elemento:', `.dividend-digit[data-index="${nextDigitIndex}"]`);
+            console.log('Elemento encontrado:', nextDigitBox);
+            
+            if (nextDigitBox) {
+                const digitValue = nextDigitBox.textContent;
+                console.log('Valor do dígito que desce:', digitValue);
+                
+                // Criar elemento visual para mostrar o dígito que está descendo
+                const descendingElement = document.createElement('div');
+                descendingElement.className = 'descending-digit-indicator';
+                descendingElement.textContent = digitValue;
+                descendingElement.style.cssText = `
+                    position: absolute;
+                    width: 30px;
+                    height: 30px;
+                    background-color: #e3f2fd;
+                    border: 2px solid #2196f3;
+                    border-radius: 6px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 16px;
+                    font-weight: bold;
+                    color: #1976d2;
+                    z-index: 10;
+                    top: -35px;
+                    right: -35px;
+                    animation: bounce 0.5s ease-in-out;
+                `;
+                
+                nextDigitBox.style.position = 'relative';
+                nextDigitBox.appendChild(descendingElement);
+                console.log('Dígito descendo adicionado com sucesso:', digitValue);
+                
+                // Remover o indicador após 3 segundos
+                setTimeout(() => {
+                    if (descendingElement.parentNode) {
+                        descendingElement.remove();
+                    }
+                }, 3000);
+            } else {
+                console.log('ERRO: nextDigitBox não encontrado!');
+            }
+        }
+        
+        function showCarryOverVisually(carryOverValue, nextDigitIndex) {
+            console.log('showCarryOverVisually chamada:', carryOverValue, nextDigitIndex);
+            // Remover carryOver visual anterior se existir
+            const existingCarryOver = document.querySelector('.carry-over-display');
+            if (existingCarryOver) {
+                existingCarryOver.remove();
+            }
+            
+            // Criar elemento visual para o carryOver
+            const carryOverElement = document.createElement('div');
+            carryOverElement.className = 'carry-over-display';
+            carryOverElement.textContent = carryOverValue;
+            carryOverElement.style.cssText = `
+                position: absolute;
+                width: 30px;
+                height: 30px;
+                background-color: #c8e6c9;
+                border: 2px solid #4caf50;
+                border-radius: 6px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 16px;
+                font-weight: bold;
+                color: #2e7d32;
+                z-index: 10;
+                top: -35px;
+                right: -35px;
+            `;
+            
+            // Posicionar ao lado direito do próximo dígito
+            const nextDigitBox = document.querySelector(`.dividend-digit[data-index="${nextDigitIndex}"]`);
+            console.log('Procurando elemento:', `.dividend-digit[data-index="${nextDigitIndex}"]`);
+            console.log('Elemento encontrado:', nextDigitBox);
+            if (nextDigitBox) {
+                nextDigitBox.style.position = 'relative';
+                nextDigitBox.appendChild(carryOverElement);
+                console.log('Elemento carryOver adicionado com sucesso');
+            } else {
+                console.log('ERRO: nextDigitBox não encontrado!');
+            }
+        }
+        
+        function finalizeDivision() {
+            const selectedValue = getSelectedValue();
+            
+            // Marcar todos os dígitos selecionados como verdes (corretos)
+            gameState.selectedDigits.forEach(idx => {
+                const digitBox = document.querySelector(`.dividend-digit[data-index="${idx}"]`);
+                if (digitBox) {
+                    digitBox.style.backgroundColor = '#c8e6c9'; // Verde
+                    digitBox.style.borderColor = '#4caf50';
+                }
+            });
+            
+            document.getElementById('remainder-input').value = selectedValue;
+            showInstructions('Divisão concluída! O resto é ' + selectedValue);
+            gameState.currentStep = 'completed';
+            hideStepArrow();
+        }
+        
+        function showInstructions(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = message;
+            errorMessage.style.color = '#2196f3';
+        }
+        
+        function createStepArrow() {
+            // Remover seta existente se houver
+            const existingArrow = document.getElementById('step-arrow');
+            if (existingArrow) {
+                existingArrow.remove();
+            }
+            
+            // Criar nova seta
+            const arrow = document.createElement('div');
+            arrow.id = 'step-arrow';
+            arrow.className = 'step-arrow';
+            document.body.appendChild(arrow);
+        }
+        
+        function updateArrowPosition() {
+            const arrow = document.getElementById('step-arrow');
+            if (!arrow) return;
+            
+            let targetElement = null;
+            
+            switch (gameState.currentStep) {
+                case 'selecting':
+                    // Apontar para o próximo dígito disponível (não selecionado)
+                    let nextAvailableIndex = -1;
+                    for (let i = 0; i < gameState.dividendDigits.length; i++) {
+                        const digitBox = document.querySelector(`.dividend-digit[data-index="${i}"]`);
+                        // Verificar se o dígito não foi selecionado (não tem cor verde)
+                        const isSelected = digitBox && (digitBox.style.backgroundColor === 'rgb(200, 230, 201)' || 
+                                                      digitBox.style.backgroundColor === '#c8e6c9' ||
+                                                      digitBox.style.backgroundColor.includes('200, 230, 201') ||
+                                                      digitBox.style.backgroundColor.includes('c8e6c9'));
+                        if (digitBox && !isSelected) {
+                            nextAvailableIndex = i;
+                            break;
+                        }
+                    }
+                    if (nextAvailableIndex !== -1) {
+                        targetElement = document.querySelector(`.dividend-digit[data-index="${nextAvailableIndex}"]`);
+                    }
+                    break;
+                    
+                case 'multiplying':
+                    // Apontar para o campo do quociente atual
+                    targetElement = document.getElementById(`quotient-${gameState.currentQuotientIndex}`);
+                    break;
+                    
+                case 'subtracting':
+                    // Apontar para o campo de subtração
+                    targetElement = document.getElementById('subtraction-result');
+                    break;
+                    
+                default:
+                    arrow.classList.add('hidden');
+                    return;
+            }
+            
+            if (targetElement) {
+                const rect = targetElement.getBoundingClientRect();
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+                
+                arrow.style.left = (rect.left + scrollLeft + rect.width / 2 - 15) + 'px';
+                arrow.style.top = (rect.top + scrollTop - 30) + 'px';
+                arrow.classList.remove('hidden');
+            } else {
+                arrow.classList.add('hidden');
+            }
+        }
+        
+        function hideStepArrow() {
+            const arrow = document.getElementById('step-arrow');
+            if (arrow) {
+                arrow.classList.add('hidden');
+            }
+        }
+
+        function checkResult() {
+            if (gameState.currentStep === 'input') {
+                showInstructions('Primeiro clique em "Dividir" para começar!');
+                return;
+            }
+            
+            if (gameState.currentStep !== 'completed') {
+                showInstructions('Complete a divisão primeiro!');
+                return;
+            }
+            
+            // Calcular resultado correto
+            const dividend = parseInt(gameState.dividend);
+            const divisor = gameState.divisor;
+            const correctQuotient = Math.floor(dividend / divisor);
+            const correctRemainder = dividend % divisor;
+            
+            // Verificar quociente
+            const quotientInputs = document.querySelectorAll('.quotient-digit');
+            let userQuotient = '';
+            let quotientCorrect = true;
+            
+            quotientInputs.forEach((input, index) => {
+                if (input.value) {
+                    userQuotient += input.value;
+                }
+            });
+            
+            const userQuotientNum = parseInt(userQuotient) || 0;
+            if (userQuotientNum !== correctQuotient) {
+                quotientCorrect = false;
+            }
+            
+            // Verificar resto
+            const remainderInput = document.getElementById('remainder-input');
+            const userRemainder = parseInt(remainderInput.value) || 0;
+            const remainderCorrect = userRemainder === correctRemainder;
+            
+            // Mostrar resultado
+            const errorMessage = document.getElementById('errorMessage');
+            if (quotientCorrect && remainderCorrect) {
+                errorMessage.textContent = 'Parabéns! Divisão realizada corretamente!';
+                errorMessage.style.color = '#4caf50';
+                
+                // Adicionar animação de sucesso
+                const container = document.getElementById('long-division-container');
+                container.style.animation = 'pulse 0.5s ease-in-out';
+            } else {
+                errorMessage.textContent = `Resultado incorreto. Quociente correto: ${correctQuotient}, Resto correto: ${correctRemainder}`;
+                errorMessage.style.color = '#e74c3c';
+            }
+        }
+        
+        function clearAll() {
+            // Limpar campos de entrada
+            document.getElementById('dividend').value = '';
+            document.getElementById('divisor').value = '';
+            
+            // Remover interface de divisão longa
+            const existingDivision = document.getElementById('long-division-container');
+            if (existingDivision) {
+                existingDivision.remove();
+            }
+            
+            // Resetar estado do jogo
+            gameState = {
+                dividend: '',
+                divisor: 0,
+                dividendDigits: [],
+                selectedDigits: [],
+                currentQuotientIndex: 0,
+                quotientDigits: [],
+                currentStep: 'input',
+                multiplicationResult: 0,
+                subtractionInputs: [],
+                remainderValue: 0,
+                carryOver: 0
+            };
+            
+            // Limpar mensagens
+            document.getElementById('errorMessage').textContent = '';
+            document.getElementById('errorMessage').style.color = '#e74c3c';
+            
+            // Focar no primeiro campo
+            document.getElementById('dividend').focus();
+        }
+        
+        function goBack() {
+            window.history.back();
+        }
+        
+        // Permitir divisão com Enter
+        document.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                performDivision();
+            }
+        });
+        
+        // Focar no primeiro campo ao carregar
+        window.addEventListener('load', function() {
+            document.getElementById('dividend').focus();
+        });
+        
+        // Adicionar animação CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+            
+            /* Estilos para seta indicadora */
+            .step-arrow {
+                position: absolute;
+                width: 0;
+                height: 0;
+                border-left: 15px solid transparent;
+                border-right: 15px solid transparent;
+                border-top: 20px solid #ff5722;
+                z-index: 1000;
+                animation: bounce 1s infinite;
+                transition: all 0.3s ease;
+            }
+            
+            @keyframes bounce {
+                0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+                40% { transform: translateY(-10px); }
+                60% { transform: translateY(-5px); }
+            }
+            
+            .descending-digit-indicator {
+                animation: bounce 0.5s ease-in-out;
+            }
+            
+            .step-arrow.hidden {
+                display: none;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

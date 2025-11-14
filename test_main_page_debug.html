@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Debug - Página Principal</title>
+    <style>
+        /* Reset & estilos gerais */
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Comic Sans MS', cursive, sans-serif; }
+        body { background-color: #e6f3ff; color: #333; padding: 20px; }
+        .hidden { display:none; }
+        .container { max-width: 900px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        h1 { text-align: center; margin-bottom: 20px; color: #0066cc; }
+        button { 
+            padding: 10px 20px; 
+            margin: 5px; 
+            cursor: pointer; 
+            background-color: #4CAF50; 
+            color: white; 
+            border: none; 
+            border-radius: 5px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+        
+        #debug-info {
+            background: #f0f0f0;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 2px solid #333;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug - Página Principal</h1>
+        
+        <div id="debug-info">
+            <h3>📊 Logs de Debug:</h3>
+            <div id="debug-content">
+                <p>⏳ Aguardando carregamento...</p>
+            </div>
+        </div>
+        
+        <div class="game-selection">
+            <button id="memorize-btn">Memorizar com carta</button>
+            <button id="memory-btn">Jogo da Memória</button>
+            <button id="multiplication-btn">Jogo da Multiplicação</button>
+            <button id="division-btn">Jogo da Divisão</button>
+            <button id="addition-btn">Jogo da Adição</button>
+        </div>
+        
+        <!-- Jogo da Adição -->
+        <div id="addition-game" class="hidden">
+            <h2>🎮 Jogo da Adição</h2>
+            <p>✅ Jogo da adição carregado com sucesso!</p>
+            <button id="back-add">🔙 Voltar</button>
+        </div>
+        
+        <!-- Outros jogos (simplificados) -->
+        <div id="memorize-game" class="hidden">
+            <h2>Memorizar com carta</h2>
+            <button id="back-memorize">🔙 Voltar</button>
+        </div>
+        
+        <div id="memory-game" class="hidden">
+            <h2>Jogo da Memória</h2>
+            <button id="back-memory">🔙 Voltar</button>
+        </div>
+        
+        <div id="multiplication-game" class="hidden">
+            <h2>Jogo da Multiplicação</h2>
+            <button id="back-mult">🔙 Voltar</button>
+        </div>
+        
+        <div id="division-game" class="hidden">
+            <h2>Jogo da Divisão</h2>
+            <button id="back-div">🔙 Voltar</button>
+        </div>
+    </div>
+
+    <script>
+        console.log('🚀 Script iniciado - Debug Página Principal');
+        
+        function debugLog(message) {
+            const debugContent = document.getElementById('debug-content');
+            const timestamp = new Date().toLocaleTimeString();
+            debugContent.innerHTML += `<p><strong>${timestamp}:</strong> ${message}</p>`;
+            debugContent.scrollTop = debugContent.scrollHeight;
+            console.log(message);
+        }
+
+        debugLog('✅ Função debugLog funcionando');
+
+        function hideAllGames() {
+            debugLog('🔄 Executando hideAllGames()');
+            const games = ['memorize-game', 'memory-game', 'multiplication-game', 'division-game', 'addition-game'];
+            games.forEach(gameId => {
+                const game = document.getElementById(gameId);
+                if (game) {
+                    game.classList.add('hidden');
+                    debugLog(`✅ ${gameId} ocultado`);
+                } else {
+                    debugLog(`❌ ${gameId} não encontrado`);
+                }
+            });
+            
+            const gameSelection = document.querySelector('.game-selection');
+            if (gameSelection) {
+                gameSelection.classList.remove('hidden');
+                debugLog('✅ game-selection exibido');
+            }
+        }
+
+        function initializeAdditionGame() {
+            debugLog('🎮 Executando initializeAdditionGame()');
+            // Simulação da inicialização
+            debugLog('✅ Jogo de adição inicializado');
+        }
+
+        function initializeMultiplicationGame() {
+            debugLog('🎮 Executando initializeMultiplicationGame()');
+            debugLog('✅ Jogo de multiplicação inicializado');
+        }
+
+        function initializeMemorizeGame() {
+            debugLog('🎮 Executando initializeMemorizeGame()');
+            debugLog('✅ Jogo de memorização inicializado');
+        }
+
+        // Inicializar quando o DOM estiver carregado
+        document.addEventListener('DOMContentLoaded', function() {
+            debugLog('📄 DOM carregado - iniciando configuração');
+            
+            // Verificar se todos os elementos existem
+            const elements = {
+                'addition-btn': document.getElementById('addition-btn'),
+                'multiplication-btn': document.getElementById('multiplication-btn'),
+                'memorize-btn': document.getElementById('memorize-btn'),
+                'memory-btn': document.getElementById('memory-btn'),
+                'division-btn': document.getElementById('division-btn'),
+                'addition-game': document.getElementById('addition-game'),
+                'game-selection': document.querySelector('.game-selection')
+            };
+            
+            Object.entries(elements).forEach(([name, element]) => {
+                debugLog(`🔍 ${name}: ${element ? 'ENCONTRADO' : 'NÃO ENCONTRADO'}`);
+            });
+            
+            // Botões de navegação
+            if (elements['memorize-btn']) {
+                elements['memorize-btn'].addEventListener('click', function() {
+                    debugLog('🖱️ BOTÃO MEMORIZAR CLICADO!');
+                    hideAllGames();
+                    document.getElementById('memorize-game').classList.remove('hidden');
+                    initializeMemorizeGame();
+                });
+                debugLog('✅ Event listener memorize-btn configurado');
+            }
+            
+            if (elements['memory-btn']) {
+                elements['memory-btn'].addEventListener('click', function() {
+                    debugLog('🖱️ BOTÃO MEMÓRIA CLICADO!');
+                    hideAllGames();
+                    document.getElementById('memory-game').classList.remove('hidden');
+                });
+                debugLog('✅ Event listener memory-btn configurado');
+            }
+            
+            if (elements['multiplication-btn']) {
+                elements['multiplication-btn'].addEventListener('click', function() {
+                    debugLog('🖱️ BOTÃO MULTIPLICAÇÃO CLICADO!');
+                    hideAllGames();
+                    document.getElementById('multiplication-game').classList.remove('hidden');
+                    initializeMultiplicationGame();
+                });
+                debugLog('✅ Event listener multiplication-btn configurado');
+            }
+            
+            // Configurar botão de adição com logs de debug
+            const additionBtn = elements['addition-btn'];
+            debugLog(`🔍 Botão de adição encontrado: ${additionBtn ? 'SIM' : 'NÃO'}`);
+            
+            if (additionBtn) {
+                additionBtn.addEventListener('click', function() {
+                    debugLog('🖱️ BOTÃO DE ADIÇÃO CLICADO!');
+                    try {
+                        hideAllGames();
+                        debugLog('✅ hideAllGames() executado');
+                        
+                        const additionGame = document.getElementById('addition-game');
+                        debugLog(`🔍 addition-game encontrado: ${additionGame ? 'SIM' : 'NÃO'}`);
+                        
+                        if (additionGame) {
+                            additionGame.classList.remove('hidden');
+                            debugLog('✅ addition-game exibido');
+                        }
+                        
+                        initializeAdditionGame();
+                        debugLog('✅ initializeAdditionGame() executado');
+                        debugLog('🎉 SUCESSO! Botão de adição funcionou perfeitamente!');
+                        
+                    } catch (error) {
+                        debugLog(`❌ ERRO no botão de adição: ${error.message}`);
+                        console.error('Erro:', error);
+                    }
+                });
+                debugLog('✅ Event listener do botão de adição configurado');
+            } else {
+                debugLog('❌ ERRO: Botão de adição não encontrado!');
+            }
+            
+            // Botões de voltar
+            const backButtons = {
+                'back-memorize': 'memorize-game',
+                'back-memory': 'memory-game',
+                'back-mult': 'multiplication-game',
+                'back-div': 'division-game',
+                'back-add': 'addition-game'
+            };
+            
+            Object.entries(backButtons).forEach(([buttonId, gameId]) => {
+                const button = document.getElementById(buttonId);
+                if (button) {
+                    button.addEventListener('click', function() {
+                        debugLog(`🔙 Botão ${buttonId} clicado`);
+                        hideAllGames();
+                    });
+                    debugLog(`✅ Event listener ${buttonId} configurado`);
+                }
+            });
+            
+            debugLog('🎯 Configuração completa! Teste os botões.');
+        });
+        
+        debugLog('📝 Script finalizado - aguardando DOM');
+    </script>
+</body>
+</html>

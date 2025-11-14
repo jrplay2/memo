@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogos Educativos - Temas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            color: white;
+        }
+
+        .main-title {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .themes-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .theme-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .theme-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .theme-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .theme-card:hover::before {
+            left: 100%;
+        }
+
+        .theme-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .theme-title {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .theme-description {
+            color: #666;
+            font-size: 1em;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .play-button {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .play-button:hover {
+            background: linear-gradient(135deg, #ee5a24 0%, #ff6b6b 100%);
+            transform: scale(1.05);
+        }
+
+        .sistema-nervoso {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+        }
+
+        .sistema-nervoso .theme-icon {
+            color: #0984e3;
+        }
+
+        .portugues {
+            background: linear-gradient(135deg, #e17055 0%, #d63031 100%);
+        }
+
+        .portugues .theme-icon {
+            color: #d63031;
+        }
+
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9em;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .theme-card:hover .theme-icon {
+            animation: pulse 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="main-title">🎓 Jogos Educativos</h1>
+        <p class="subtitle">Escolha um tema para começar a aprender!</p>
+    </div>
+
+    <div class="themes-container">
+        <div class="theme-card sistema-nervoso" onclick="openSistemaNervoso()">
+            <span class="theme-icon">🧠</span>
+            <h2 class="theme-title">Sistema Nervoso</h2>
+            <p class="theme-description">
+                Explore o "centro de comando" do corpo humano! Aprenda sobre reflexos, 
+                substâncias psicoativas e como o cérebro controla nossas ações.
+            </p>
+            <button class="play-button">Jogar Agora</button>
+        </div>
+
+        <div class="theme-card portugues" onclick="openPortugues()">
+            <span class="theme-icon">📚</span>
+            <h2 class="theme-title">Português</h2>
+            <p class="theme-description">
+                Teste seus conhecimentos sobre interpretação de texto com a crônica 
+                "A Velhinha Contrabandista" de Stanislaw Ponte Preta.
+            </p>
+            <button class="play-button">Jogar Agora</button>
+        </div>
+
+        <div class="theme-card geografia" onclick="openGeografia()">
+            <span class="theme-icon">🌍</span>
+            <h2 class="theme-title">Geografia</h2>
+            <p class="theme-description">
+                Localização, paralelos e meridianos, Linha do Equador, relevo e escala cartográfica.
+            </p>
+            <button class="play-button">Jogar Agora</button>
+        </div>
+
+        <div class="theme-card" style="opacity: 0.6; cursor: not-allowed;">
+            <span class="theme-icon">📚</span>
+            <h2 class="theme-title">História</h2>
+            <p class="theme-description">
+                Em breve! Viaje no tempo e aprenda sobre eventos históricos.
+            </p>
+            <button class="play-button" disabled style="opacity: 0.5;">Em Breve</button>
+        </div>
+
+        <div class="theme-card" style="opacity: 0.6; cursor: not-allowed;">
+            <span class="theme-icon">🔢</span>
+            <h2 class="theme-title">Matemática</h2>
+            <p class="theme-description">
+                Em breve! Desafios matemáticos divertidos e educativos.
+            </p>
+            <button class="play-button" disabled style="opacity: 0.5;">Em Breve</button>
+        </div>
+
+        <div class="theme-card" style="opacity: 0.6; cursor: not-allowed;">
+            <span class="theme-icon">🎨</span>
+            <h2 class="theme-title">Arte e Cultura</h2>
+            <p class="theme-description">
+                Em breve! Descubra obras de arte e manifestações culturais.
+            </p>
+            <button class="play-button" disabled style="opacity: 0.5;">Em Breve</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>🎯 Aprender nunca foi tão divertido!</p>
+    </div>
+
+    <script>
+        function openSistemaNervoso() {
+            // Abrir o jogo específico do Sistema Nervoso
+            window.open('jogo_sistema_nervoso.html', '_blank');
+        }
+
+        function openPortugues() {
+            // Abrir o jogo específico de Português
+            window.open('jogo_portugues.html', '_blank');
+        }
+
+        function openGeografia() {
+            // Abrir o jogo específico de Geografia
+            window.open('jogo_geografia.html', '_blank');
+        }
+
+        // Efeito de partículas no fundo (opcional)
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.style.position = 'fixed';
+            particle.style.width = '4px';
+            particle.style.height = '4px';
+            particle.style.background = 'rgba(255,255,255,0.3)';
+            particle.style.borderRadius = '50%';
+            particle.style.pointerEvents = 'none';
+            particle.style.left = Math.random() * window.innerWidth + 'px';
+            particle.style.top = window.innerHeight + 'px';
+            particle.style.zIndex = '1';
+            
+            document.body.appendChild(particle);
+            
+            const animation = particle.animate([
+                { transform: 'translateY(0px)', opacity: 1 },
+                { transform: `translateY(-${window.innerHeight + 100}px)`, opacity: 0 }
+            ], {
+                duration: Math.random() * 3000 + 2000,
+                easing: 'linear'
+            });
+            
+            animation.onfinish = () => particle.remove();
+        }
+
+        // Criar partículas periodicamente
+        setInterval(createParticle, 300);
+    </script>
+</body>
+</html>

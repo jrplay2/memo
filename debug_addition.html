@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Jogo da Adição</title>
+    <style>
+        .hidden { display: none; }
+        .game-selection {
+            text-align: center;
+            padding: 20px;
+        }
+        button {
+            padding: 15px 30px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .number-button {
+            display: inline-block;
+            padding: 10px;
+            margin: 5px;
+            border: 2px solid #333;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .addition-options {
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-selection">
+        <h1>Jogos Educativos</h1>
+        <button id="addition-btn">Jogo da Adição</button>
+    </div>
+    
+    <!-- Jogo da Adição -->
+    <div id="addition-game" class="hidden">
+        <h2>Jogo da Adição</h2>
+        <div class="addition-options">
+            <p>Escolha um número para somar:</p>
+            <div class="number-buttons" id="addition-number-buttons">
+                <!-- Botões de 0 a 10 serão adicionados via JavaScript -->
+            </div>
+            <div class="option-group">
+                <input type="checkbox" id="random-add-option">
+                <label for="random-add-option">Aleatório</label>
+            </div>
+            <div class="option-group">
+                <input type="checkbox" id="custom-add-option">
+                <label for="custom-add-option">Personalizar</label>
+            </div>
+            <button id="start-add" class="hidden">Iniciar</button>
+        </div>
+    </div>
+    
+    <script>
+        function getRandomColor() {
+            const colors = [
+                '#FF5722', '#E91E63', '#9C27B0', '#673AB7',
+                '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4'
+            ];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        function hideAllGames() {
+            document.getElementById('addition-game').classList.add('hidden');
+            document.querySelector('.game-selection').classList.remove('hidden');
+        }
+        
+        function initializeAdditionGame() {
+            console.log('Iniciando initializeAdditionGame');
+            
+            const numberButtons = document.getElementById('addition-number-buttons');
+            console.log('numberButtons encontrado:', numberButtons);
+            
+            if (!numberButtons) {
+                console.error('Elemento addition-number-buttons não encontrado!');
+                alert('ERRO: Elemento addition-number-buttons não encontrado!');
+                return;
+            }
+            
+            const randomOption = document.getElementById('random-add-option');
+            const customOption = document.getElementById('custom-add-option');
+            const startButton = document.getElementById('start-add');
+            
+            console.log('Elementos encontrados:', {
+                randomOption: !!randomOption,
+                customOption: !!customOption,
+                startButton: !!startButton
+            });
+            
+            // Limpar botões de números
+            numberButtons.innerHTML = '';
+            
+            // Adicionar botões de 0 a 10
+            for (let i = 0; i <= 10; i++) {
+                const button = document.createElement('div');
+                button.className = 'number-button';
+                button.textContent = i;
+                button.style.backgroundColor = getRandomColor();
+                
+                button.addEventListener('click', function() {
+                    console.log('Número selecionado:', i);
+                    
+                    // Destacar botão selecionado
+                    const allButtons = numberButtons.querySelectorAll('.number-button');
+                    allButtons.forEach(btn => btn.style.border = '2px solid #333');
+                    button.style.border = '3px solid #000';
+                    
+                    // Mostrar botão iniciar
+                    if (startButton) {
+                        startButton.classList.remove('hidden');
+                    }
+                    
+                    alert('Número ' + i + ' selecionado! Botão iniciar deve aparecer.');
+                });
+                
+                numberButtons.appendChild(button);
+            }
+            
+            console.log('Botões de 0 a 10 adicionados com sucesso');
+            alert('Jogo da Adição inicializado com sucesso! Clique em um número.');
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM carregado');
+            
+            const addBtn = document.getElementById('addition-btn');
+            console.log('Botão addition-btn encontrado:', addBtn);
+            
+            if (addBtn) {
+                addBtn.addEventListener('click', function() {
+                    console.log('Botão de adição clicado!');
+                    alert('Botão clicado! Abrindo jogo da adição...');
+                    
+                    hideAllGames();
+                    document.getElementById('addition-game').classList.remove('hidden');
+                    initializeAdditionGame();
+                });
+                console.log('Event listener adicionado ao botão');
+            } else {
+                console.error('Botão addition-btn não encontrado!');
+                alert('ERRO: Botão addition-btn não encontrado!');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lista de Números e Objetos (1–99)</title>
+    <style>
+      :root {
+        --bg: #f7f7fb;
+        --text: #1e293b;
+        --muted: #64748b;
+        --card: #ffffff;
+        --border: #e2e8f0;
+        --accent: #2563eb;
+      }
+
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      }
+
+      header {
+        position: sticky;
+        top: 0;
+        background: var(--card);
+        border-bottom: 1px solid var(--border);
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        z-index: 10;
+      }
+
+      header h1 {
+        font-size: 18px;
+        margin: 0;
+      }
+
+      header a {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 16px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 16px;
+      }
+
+      .item {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      }
+
+      .item img {
+        width: 100%;
+        height: 110px;
+        object-fit: contain;
+        border-radius: 6px;
+        background: #fafafa;
+        border: 1px solid var(--border);
+      }
+
+      .item .num {
+        font-weight: 700;
+        color: var(--text);
+      }
+
+      .item .caption {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      footer {
+        text-align: center;
+        padding: 24px 16px 32px;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a href="index.html" title="Voltar para a página inicial">← Início</a>
+      <h1>Lista de Números e Objetos (1–99)</h1>
+    </header>
+
+    <main>
+      <p style="margin: 0 0 16px; color: var(--muted)">
+        Abaixo estão os números de 1 a 99 acompanhados de suas imagens em
+        <code>novas_imagens/</code>.
+      </p>
+      <section class="grid" id="grid"></section>
+    </main>
+
+    <footer>
+      Feito para visualização rápida dos recursos do jogo educativo.
+    </footer>
+
+    <script>
+      const grid = document.getElementById('grid');
+      for (let n = 1; n <= 99; n++) {
+        const item = document.createElement('div');
+        item.className = 'item';
+
+        const num = document.createElement('div');
+        num.className = 'num';
+        num.textContent = `Número ${n}`;
+
+        const img = document.createElement('img');
+        img.src = `novas_imagens/${n}.png`;
+        img.alt = `Objeto ${n}`;
+        img.loading = 'lazy';
+        img.onerror = () => {
+          img.style.opacity = '0.6';
+          img.title = 'Imagem não encontrada';
+        };
+
+        const caption = document.createElement('div');
+        caption.className = 'caption';
+        caption.textContent = `novas_imagens/${n}.png`;
+
+        item.appendChild(img);
+        item.appendChild(num);
+        item.appendChild(caption);
+        grid.appendChild(item);
+      }
+    </script>
+  </body>
+</html>

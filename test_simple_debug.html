@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Simples - Debug Botão Adição</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .hidden {
+            display: none;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 32px;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #status {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 2px solid #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Teste Simples - Debug do Botão de Adição</h1>
+    
+    <div class="game-selection">
+        <button id="addition-btn">➕ Jogo da Adição</button>
+        <button id="test-btn">🧪 Botão de Teste</button>
+    </div>
+    
+    <div id="addition-game" class="hidden">
+        <h2>🎮 Jogo da Adição Funcionando!</h2>
+        <p>Se você está vendo isso, o botão funcionou!</p>
+        <button id="back-btn">🔙 Voltar</button>
+    </div>
+
+    <div id="status">
+        <h3>📊 Status:</h3>
+        <div id="status-content">
+            <p>⏳ Aguardando carregamento...</p>
+        </div>
+    </div>
+
+    <script>
+        console.log('🚀 Script iniciado');
+        
+        function updateStatus(message) {
+            const statusContent = document.getElementById('status-content');
+            const timestamp = new Date().toLocaleTimeString();
+            statusContent.innerHTML += `<p><strong>${timestamp}:</strong> ${message}</p>`;
+            console.log(message);
+        }
+
+        updateStatus('✅ Função updateStatus funcionando');
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus('📄 DOM carregado');
+            
+            // Teste 1: Verificar se os elementos existem
+            const additionBtn = document.getElementById('addition-btn');
+            const testBtn = document.getElementById('test-btn');
+            const additionGame = document.getElementById('addition-game');
+            const gameSelection = document.querySelector('.game-selection');
+            
+            updateStatus(`🔍 addition-btn existe: ${additionBtn ? 'SIM' : 'NÃO'}`);
+            updateStatus(`🔍 test-btn existe: ${testBtn ? 'SIM' : 'NÃO'}`);
+            updateStatus(`🔍 addition-game existe: ${additionGame ? 'SIM' : 'NÃO'}`);
+            updateStatus(`🔍 game-selection existe: ${gameSelection ? 'SIM' : 'NÃO'}`);
+            
+            // Teste 2: Event listener do botão de teste (para comparação)
+            if (testBtn) {
+                testBtn.addEventListener('click', function() {
+                    updateStatus('🧪 BOTÃO DE TESTE CLICADO - FUNCIONANDO!');
+                    alert('Botão de teste funcionando perfeitamente!');
+                });
+                updateStatus('✅ Event listener do botão de teste configurado');
+            }
+            
+            // Teste 3: Event listener do botão de adição
+            if (additionBtn) {
+                updateStatus('🔧 Configurando event listener do botão de adição...');
+                
+                additionBtn.addEventListener('click', function() {
+                    updateStatus('🖱️ BOTÃO DE ADIÇÃO CLICADO!');
+                    
+                    try {
+                        // Esconder seleção de jogos
+                        if (gameSelection) {
+                            gameSelection.classList.add('hidden');
+                            updateStatus('✅ game-selection ocultado');
+                        }
+                        
+                        // Mostrar jogo de adição
+                        if (additionGame) {
+                            additionGame.classList.remove('hidden');
+                            updateStatus('✅ addition-game exibido');
+                        }
+                        
+                        updateStatus('🎉 SUCESSO! Botão de adição funcionando!');
+                        
+                    } catch (error) {
+                        updateStatus(`❌ ERRO: ${error.message}`);
+                        console.error('Erro:', error);
+                    }
+                });
+                
+                updateStatus('✅ Event listener do botão de adição configurado');
+            } else {
+                updateStatus('❌ ERRO: Botão de adição não encontrado!');
+            }
+            
+            // Teste 4: Event listener do botão voltar
+            const backBtn = document.getElementById('back-btn');
+            if (backBtn) {
+                backBtn.addEventListener('click', function() {
+                    updateStatus('🔙 Botão voltar clicado');
+                    
+                    if (additionGame) {
+                        additionGame.classList.add('hidden');
+                    }
+                    if (gameSelection) {
+                        gameSelection.classList.remove('hidden');
+                    }
+                    
+                    updateStatus('✅ Voltou para seleção de jogos');
+                });
+                updateStatus('✅ Event listener do botão voltar configurado');
+            }
+            
+            updateStatus('🎯 Configuração completa! Teste o botão de adição.');
+        });
+        
+        updateStatus('📝 Script finalizado - aguardando DOM');
+    </script>
+</body>
+</html>

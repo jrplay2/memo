@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Adição - Corrigido</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .hidden {
+            display: none;
+        }
+        .game-selection {
+            text-align: center;
+            margin: 20px 0;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 32px;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+        }
+        .addition-options {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 2px solid #4CAF50;
+        }
+        .number-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .number-button {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .number-button:hover {
+            transform: scale(1.1);
+        }
+        #log {
+            background: white;
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧮 Teste Adição - Versão Corrigida</h1>
+    
+    <div class="game-selection">
+        <button id="addition-btn">Jogo da Adição</button>
+    </div>
+    
+    <div id="addition-game" class="hidden">
+        <div class="addition-options">
+            <h2>Jogo da Adição</h2>
+            <p>Escolha um número base (0-10):</p>
+            <div class="number-buttons" id="addition-number-buttons">
+                <!-- Botões serão adicionados via JavaScript -->
+            </div>
+            <div class="option-group">
+                <input type="checkbox" id="random-add-option">
+                <label for="random-add-option">Aleatório</label>
+            </div>
+            <button id="start-add" class="hidden">Iniciar</button>
+            <button id="back-add">Voltar</button>
+        </div>
+        
+        <div id="addition-play" class="hidden">
+            <h3>🎮 Jogo Iniciado!</h3>
+            <p>Aqui seria o jogo de adição funcionando...</p>
+            <button onclick="backToOptions()">Voltar às Opções</button>
+        </div>
+    </div>
+
+    <div id="log"></div>
+
+    <script>
+        function log(message) {
+            console.log(message);
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML += '<p><strong>' + new Date().toLocaleTimeString() + ':</strong> ' + message + '</p>';
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        log('✅ Script carregado');
+
+        // Função para obter cor aleatória (copiada do original)
+        function getRandomColor() {
+            const colors = [
+                '#FF5722', '#E91E63', '#9C27B0', '#673AB7', '#3F51B5', '#2196F3',
+                '#03A9F4', '#00BCD4', '#009688', '#4CAF50', '#8BC34A', '#CDDC39',
+                '#FFEB3B', '#00BCD4', '#795548', '#607D8B'
+            ];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        function hideAllGames() {
+            log('🔄 Escondendo todos os jogos');
+            document.getElementById('addition-game').classList.add('hidden');
+            document.querySelector('.game-selection').classList.remove('hidden');
+        }
+
+        function backToOptions() {
+            log('🔙 Voltando às opções');
+            document.getElementById('addition-play').classList.add('hidden');
+            document.querySelector('.addition-options').classList.remove('hidden');
+        }
+
+        // Inicializar jogo da Adição (baseado na multiplicação que funciona)
+        function initializeAdditionGame() {
+            log('🎮 Iniciando initializeAdditionGame');
+            
+            const numberButtons = document.getElementById('addition-number-buttons');
+            const randomOption = document.getElementById('random-add-option');
+            const startButton = document.getElementById('start-add');
+            const additionPlay = document.getElementById('addition-play');
+            const additionOptions = document.querySelector('.addition-options');
+            
+            if (!numberButtons) {
+                log('❌ ERRO: Elemento addition-number-buttons não encontrado!');
+                return;
+            }
+            
+            log('✅ Todos os elementos encontrados');
+            
+            // Limpar botões de números
+            numberButtons.innerHTML = '';
+            log('🧹 Botões limpos');
+            
+            // Adicionar botões de 0 a 10 (igual ao original)
+            for (let i = 0; i <= 10; i++) {
+                const button = document.createElement('div');
+                button.className = 'number-button';
+                button.textContent = i;
+                button.style.backgroundColor = getRandomColor();
+                
+                button.addEventListener('click', function() {
+                    log('🔢 Número ' + i + ' selecionado');
+                    
+                    // Destacar botão selecionado
+                    const allButtons = numberButtons.querySelectorAll('.number-button');
+                    allButtons.forEach(btn => btn.style.border = 'none');
+                    button.style.border = '3px solid #333';
+                    
+                    // Mostrar botão iniciar
+                    startButton.classList.remove('hidden');
+                    log('✅ Botão iniciar exibido');
+                });
+                
+                numberButtons.appendChild(button);
+            }
+            
+            log('✅ ' + (10 + 1) + ' botões criados (0-10)');
+            
+            // Event listener para iniciar jogo
+            startButton.addEventListener('click', function() {
+                log('🚀 Botão iniciar clicado!');
+                
+                // Esconder opções e mostrar jogo
+                additionOptions.classList.add('hidden');
+                additionPlay.classList.remove('hidden');
+                
+                log('✅ Jogo iniciado com sucesso!');
+            });
+            
+            log('🎯 initializeAdditionGame concluída com sucesso!');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            log('📄 DOM carregado');
+            
+            // Event listener para o botão de adição
+            const additionBtn = document.getElementById('addition-btn');
+            if (additionBtn) {
+                log('✅ Botão addition-btn encontrado');
+                additionBtn.addEventListener('click', function() {
+                    log('🖱️ Botão de adição CLICADO!');
+                    
+                    hideAllGames();
+                    document.getElementById('addition-game').classList.remove('hidden');
+                    
+                    log('✅ Jogo de adição exibido');
+                    
+                    // Chamar a função de inicialização
+                    initializeAdditionGame();
+                });
+            } else {
+                log('❌ ERRO: Botão addition-btn NÃO encontrado!');
+            }
+
+            // Event listener para voltar
+            const backBtn = document.getElementById('back-add');
+            if (backBtn) {
+                log('✅ Botão back-add encontrado');
+                backBtn.addEventListener('click', function() {
+                    log('🔙 Botão voltar clicado');
+                    hideAllGames();
+                });
+            }
+
+            log('🎯 Todos os event listeners configurados!');
+        });
+
+        log('📝 Script finalizado - aguardando DOM');
+    </script>
+</body>
+</html>

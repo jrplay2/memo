@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Botão Adição</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .debug-info {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+        }
+        .hidden {
+            display: none;
+        }
+        #addition-game {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 2px solid #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-info">
+        <h1>Debug - Teste do Botão Adição</h1>
+        <p>Este arquivo testa especificamente o botão de adição.</p>
+        <div id="console-log"></div>
+    </div>
+
+    <button id="addition-btn">Jogo da Adição</button>
+    
+    <div id="addition-game" class="hidden">
+        <h2>Jogo da Adição Carregado!</h2>
+        <p>Se você vê esta mensagem, o botão funcionou!</p>
+        <button id="back-add">Voltar</button>
+    </div>
+
+    <script>
+        function log(message) {
+            console.log(message);
+            const logDiv = document.getElementById('console-log');
+            logDiv.innerHTML += '<p>' + new Date().toLocaleTimeString() + ': ' + message + '</p>';
+        }
+
+        log('Script carregado');
+
+        function hideAllGames() {
+            log('Escondendo todos os jogos');
+            const games = document.querySelectorAll('[id$="-game"]');
+            games.forEach(game => {
+                game.classList.add('hidden');
+                log('Escondido: ' + game.id);
+            });
+        }
+
+        function initializeAdditionGame() {
+            log('initializeAdditionGame chamada');
+            alert('Função initializeAdditionGame foi chamada com sucesso!');
+        }
+
+        // Event listener para o botão de adição
+        document.addEventListener('DOMContentLoaded', function() {
+            log('DOM carregado');
+            
+            const additionBtn = document.getElementById('addition-btn');
+            if (additionBtn) {
+                log('Botão addition-btn encontrado');
+                additionBtn.addEventListener('click', function() {
+                    log('Botão de adição clicado!');
+                    hideAllGames();
+                    const additionGame = document.getElementById('addition-game');
+                    if (additionGame) {
+                        additionGame.classList.remove('hidden');
+                        log('Jogo de adição exibido');
+                        initializeAdditionGame();
+                    } else {
+                        log('ERRO: elemento addition-game não encontrado!');
+                    }
+                });
+            } else {
+                log('ERRO: Botão addition-btn não encontrado!');
+            }
+
+            // Event listener para voltar
+            const backBtn = document.getElementById('back-add');
+            if (backBtn) {
+                log('Botão back-add encontrado');
+                backBtn.addEventListener('click', function() {
+                    log('Botão voltar clicado');
+                    hideAllGames();
+                });
+            }
+        });
+
+        log('Script finalizado');
+    </script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Mínimo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 32px;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+        }
+        .hidden {
+            display: none;
+        }
+        .game {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 2px solid #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <h1>Teste Mínimo - Botão Adição</h1>
+    
+    <div class="game-selection">
+        <button id="addition-btn">Jogo da Adição</button>
+    </div>
+    
+    <div id="addition-game" class="game hidden">
+        <h2>🎉 Jogo da Adição Funcionando!</h2>
+        <p>Se você vê esta mensagem, o botão está funcionando perfeitamente!</p>
+        <button id="back-add">Voltar</button>
+    </div>
+
+    <div id="log" style="background: white; padding: 10px; margin: 20px 0; border-radius: 5px;"></div>
+
+    <script>
+        function log(message) {
+            console.log(message);
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML += '<p><strong>' + new Date().toLocaleTimeString() + ':</strong> ' + message + '</p>';
+        }
+
+        log('✅ Script carregado com sucesso');
+
+        function hideAllGames() {
+            log('🔄 Escondendo todos os jogos');
+            document.querySelectorAll('.game').forEach(game => {
+                game.classList.add('hidden');
+            });
+            document.querySelector('.game-selection').classList.remove('hidden');
+        }
+
+        function initializeAdditionGame() {
+            log('🎮 initializeAdditionGame() chamada com sucesso!');
+            alert('🎉 Função initializeAdditionGame foi executada!');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            log('📄 DOM carregado completamente');
+            
+            // Testar se os elementos existem
+            const additionBtn = document.getElementById('addition-btn');
+            const additionGame = document.getElementById('addition-game');
+            const backBtn = document.getElementById('back-add');
+            
+            if (additionBtn) {
+                log('✅ Botão addition-btn encontrado');
+            } else {
+                log('❌ ERRO: Botão addition-btn NÃO encontrado!');
+                return;
+            }
+            
+            if (additionGame) {
+                log('✅ Elemento addition-game encontrado');
+            } else {
+                log('❌ ERRO: Elemento addition-game NÃO encontrado!');
+                return;
+            }
+
+            // Event listener para o botão de adição
+            additionBtn.addEventListener('click', function() {
+                log('🖱️ Botão de adição CLICADO!');
+                try {
+                    hideAllGames();
+                    additionGame.classList.remove('hidden');
+                    log('✅ Jogo de adição exibido com sucesso');
+                    initializeAdditionGame();
+                } catch (error) {
+                    log('❌ ERRO ao exibir jogo: ' + error.message);
+                    console.error('Erro:', error);
+                }
+            });
+
+            // Event listener para voltar
+            if (backBtn) {
+                log('✅ Botão back-add encontrado');
+                backBtn.addEventListener('click', function() {
+                    log('🔙 Botão voltar clicado');
+                    hideAllGames();
+                });
+            } else {
+                log('❌ ERRO: Botão back-add NÃO encontrado!');
+            }
+
+            log('🎯 Todos os event listeners configurados com sucesso!');
+        });
+
+        log('📝 Script finalizado - aguardando DOM');
+    </script>
+</body>
+</html>

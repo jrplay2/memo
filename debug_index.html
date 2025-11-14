@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Index - Jogo da Adição</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .hidden {
+            display: none;
+        }
+        .game-selection {
+            text-align: center;
+            margin: 20px 0;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 32px;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+        }
+        .addition-options {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 2px solid #4CAF50;
+        }
+        .number-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .number-button {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .number-button:hover {
+            transform: scale(1.1);
+        }
+        #debug-log {
+            background: white;
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 5px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 2px solid #333;
+        }
+        .error { color: red; font-weight: bold; }
+        .success { color: green; font-weight: bold; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>🐛 Debug Index - Teste do Jogo da Adição</h1>
+    
+    <div class="game-selection">
+        <button id="addition-btn">🧮 Jogo da Adição</button>
+    </div>
+    
+    <div id="addition-game" class="hidden">
+        <h2>Jogo da Adição</h2>
+        <div class="addition-options">
+            <p>Escolha um número para somar:</p>
+            <div class="number-buttons" id="addition-number-buttons">
+                <!-- Botões de 0 a 10 serão adicionados via JavaScript -->
+            </div>
+            <div class="option-group">
+                <input type="checkbox" id="random-add-option">
+                <label for="random-add-option">Aleatório</label>
+            </div>
+            <div class="option-group">
+                <input type="checkbox" id="custom-add-option">
+                <label for="custom-add-option">Personalizar</label>
+            </div>
+            <button id="start-add" class="hidden">Iniciar</button>
+            <button id="back-add">Voltar</button>
+        </div>
+        
+        <div id="addition-play" class="hidden">
+            <h3>🎮 Jogo Iniciado!</h3>
+            <p>Aqui seria o jogo de adição funcionando...</p>
+            <button onclick="backToOptions()">Voltar às Opções</button>
+        </div>
+    </div>
+
+    <div id="debug-log">
+        <h3>🐛 Log de Debug:</h3>
+        <div id="log-content"></div>
+    </div>
+
+    <script>
+        function debugLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logContent = document.getElementById('log-content');
+            const logEntry = document.createElement('div');
+            logEntry.className = type;
+            logEntry.innerHTML = `<strong>${timestamp}:</strong> ${message}`;
+            logContent.appendChild(logEntry);
+            logContent.scrollTop = logContent.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        debugLog('✅ Script carregado', 'success');
+
+        // Função para obter cor aleatória (copiada do index.html original)
+        function getRandomColor() {
+            const colors = [
+                '#FF5722', '#E91E63', '#9C27B0', '#673AB7', '#3F51B5', '#2196F3',
+                '#03A9F4', '#00BCD4', '#009688', '#4CAF50', '#8BC34A', '#CDDC39',
+                '#FFEB3B', '#00BCD4', '#795548', '#607D8B'
+            ];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        function hideAllGames() {
+            debugLog('🔄 Executando hideAllGames()', 'info');
+            const additionGame = document.getElementById('addition-game');
+            const gameSelection = document.querySelector('.game-selection');
+            
+            if (additionGame) {
+                additionGame.classList.add('hidden');
+                debugLog('✅ addition-game ocultado', 'success');
+            } else {
+                debugLog('❌ ERRO: addition-game não encontrado!', 'error');
+            }
+            
+            if (gameSelection) {
+                gameSelection.classList.remove('hidden');
+                debugLog('✅ game-selection exibido', 'success');
+            } else {
+                debugLog('❌ ERRO: game-selection não encontrado!', 'error');
+            }
+        }
+
+        function backToOptions() {
+            debugLog('🔙 Voltando às opções', 'info');
+            document.getElementById('addition-play').classList.add('hidden');
+            document.querySelector('.addition-options').classList.remove('hidden');
+        }
+
+        // Inicializar jogo da Adição (copiado do index.html original)
+        function initializeAdditionGame() {
+            debugLog('🎮 INICIANDO initializeAdditionGame()', 'success');
+            
+            try {
+                const numberButtons = document.getElementById('addition-number-buttons');
+                const randomOption = document.getElementById('random-add-option');
+                const customOption = document.getElementById('custom-add-option');
+                const startButton = document.getElementById('start-add');
+                
+                debugLog('🔍 Verificando elementos do DOM...', 'info');
+                
+                if (!numberButtons) {
+                    debugLog('❌ ERRO CRÍTICO: addition-number-buttons não encontrado!', 'error');
+                    return;
+                }
+                debugLog('✅ addition-number-buttons encontrado', 'success');
+                
+                if (!randomOption) {
+                    debugLog('❌ ERRO: random-add-option não encontrado!', 'error');
+                } else {
+                    debugLog('✅ random-add-option encontrado', 'success');
+                }
+                
+                if (!customOption) {
+                    debugLog('❌ ERRO: custom-add-option não encontrado!', 'error');
+                } else {
+                    debugLog('✅ custom-add-option encontrado', 'success');
+                }
+                
+                if (!startButton) {
+                    debugLog('❌ ERRO: start-add não encontrado!', 'error');
+                } else {
+                    debugLog('✅ start-add encontrado', 'success');
+                }
+                
+                // Limpar botões existentes
+                numberButtons.innerHTML = '';
+                debugLog('🧹 Botões de números limpos', 'info');
+                
+                // Adicionar botões de 0 a 10
+                for (let i = 0; i <= 10; i++) {
+                    const button = document.createElement('div');
+                    button.className = 'number-button';
+                    button.textContent = i;
+                    button.style.backgroundColor = getRandomColor();
+                    
+                    button.addEventListener('click', function() {
+                        debugLog(`🔢 Número ${i} selecionado`, 'success');
+                        
+                        // Destacar botão selecionado
+                        const allButtons = numberButtons.querySelectorAll('.number-button');
+                        allButtons.forEach(btn => btn.style.border = 'none');
+                        button.style.border = '3px solid #333';
+                        
+                        // Mostrar botão iniciar
+                        if (startButton) {
+                            startButton.classList.remove('hidden');
+                            debugLog('✅ Botão iniciar exibido', 'success');
+                        }
+                    });
+                    
+                    numberButtons.appendChild(button);
+                }
+                
+                debugLog(`✅ ${11} botões criados (0-10)`, 'success');
+                
+                // Event listener para botão iniciar
+                if (startButton) {
+                    startButton.addEventListener('click', function() {
+                        debugLog('🚀 Botão iniciar clicado!', 'success');
+                        
+                        const additionOptions = document.querySelector('.addition-options');
+                        const additionPlay = document.getElementById('addition-play');
+                        
+                        if (additionOptions && additionPlay) {
+                            additionOptions.classList.add('hidden');
+                            additionPlay.classList.remove('hidden');
+                            debugLog('✅ Transição para jogo realizada com sucesso!', 'success');
+                        } else {
+                            debugLog('❌ ERRO: Elementos de transição não encontrados!', 'error');
+                        }
+                    });
+                }
+                
+                // Event listener para botão voltar
+                const backButton = document.getElementById('back-add');
+                if (backButton) {
+                    backButton.addEventListener('click', function() {
+                        debugLog('🔙 Botão voltar clicado', 'info');
+                        hideAllGames();
+                    });
+                    debugLog('✅ Event listener do botão voltar configurado', 'success');
+                }
+                
+                debugLog('🎯 initializeAdditionGame() CONCLUÍDA COM SUCESSO!', 'success');
+                
+            } catch (error) {
+                debugLog(`❌ ERRO FATAL em initializeAdditionGame(): ${error.message}`, 'error');
+                console.error('Erro completo:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            debugLog('📄 DOM carregado - configurando event listeners', 'success');
+            
+            try {
+                // Event listener para o botão de adição
+                const additionBtn = document.getElementById('addition-btn');
+                if (additionBtn) {
+                    debugLog('✅ Botão addition-btn encontrado', 'success');
+                    
+                    additionBtn.addEventListener('click', function() {
+                        debugLog('🖱️ BOTÃO DE ADIÇÃO CLICADO!', 'success');
+                        
+                        try {
+                            hideAllGames();
+                            
+                            const additionGame = document.getElementById('addition-game');
+                            if (additionGame) {
+                                additionGame.classList.remove('hidden');
+                                debugLog('✅ Jogo de adição exibido', 'success');
+                            } else {
+                                debugLog('❌ ERRO: addition-game não encontrado!', 'error');
+                                return;
+                            }
+                            
+                            // Chamar a função de inicialização
+                            debugLog('🔄 Chamando initializeAdditionGame()...', 'info');
+                            initializeAdditionGame();
+                            
+                        } catch (error) {
+                            debugLog(`❌ ERRO no click do botão: ${error.message}`, 'error');
+                            console.error('Erro completo:', error);
+                        }
+                    });
+                    
+                    debugLog('✅ Event listener do botão de adição configurado', 'success');
+                } else {
+                    debugLog('❌ ERRO CRÍTICO: Botão addition-btn NÃO encontrado!', 'error');
+                }
+                
+                debugLog('🎯 Configuração de event listeners CONCLUÍDA!', 'success');
+                
+            } catch (error) {
+                debugLog(`❌ ERRO FATAL na configuração: ${error.message}`, 'error');
+                console.error('Erro completo:', error);
+            }
+        });
+
+        debugLog('📝 Script finalizado - aguardando DOM', 'info');
+    </script>
+</body>
+</html>

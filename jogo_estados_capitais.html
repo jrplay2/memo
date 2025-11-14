@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Estados e Capitais - Memória Visual</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.9);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .score, .progress {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .card-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            perspective: 1000px;
+        }
+
+        .card {
+            width: 300px;
+            height: 400px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            position: relative;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+        }
+
+        .estado-nome {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .opcoes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .opcao {
+            padding: 15px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .opcao:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .opcao.correct {
+            background: linear-gradient(45deg, #4CAF50, #4CAF50);
+            animation: pulse 0.6s;
+        }
+
+        .opcao.wrong {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .capital-info {
+            text-align: center;
+        }
+
+        .capital-nome {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .capital-imagem {
+            width: 200px;
+            height: 150px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        .numero-imagem {
+            width: 200px;
+            height: 200px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .associacao {
+            font-size: 1.2em;
+            color: #666;
+            text-align: center;
+        }
+
+        .btn-continuar {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .btn-continuar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .mensagem {
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.9);
+        }
+
+        .mensagem.acerto {
+            color: #4CAF50;
+        }
+
+        .mensagem.erro {
+            color: #f44336;
+        }
+
+        @media (max-width: 768px) {
+            .card {
+                width: 280px;
+                height: 380px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .opcoes {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 Jogo de Estados e Capitais</h1>
+        
+        <div class="game-info">
+            <div class="score">Pontuação: <span id="pontuacao">0</span></div>
+            <div class="progress">Progresso: <span id="progresso">1</span>/27</div>
+        </div>
+
+        <div class="card-container">
+            <div class="card" id="carta">
+                <div class="card-face card-front" id="carta-frente">
+                    <div class="estado-nome" id="estado-nome"></div>
+                    <div class="opcoes" id="opcoes-container"></div>
+                </div>
+                <div class="card-face card-back" id="carta-verso"></div>
+            </div>
+        </div>
+
+        <div class="mensagem" id="mensagem" style="display: none;"></div>
+        
+        <button class="btn-continuar" id="btn-continuar" style="display: none;">Próximo Estado</button>
+    </div>
+
+    <script>
+        // Dados dos estados e capitais
+        const estadosCapitais = [
+            { estado: 'Acre', capital: 'Rio Branco', numero: 1, imagem: '🌳' },
+            { estado: 'Alagoas', capital: 'Maceió', numero: 2, imagem: '🏖️' },
+            { estado: 'Amapá', capital: 'Macapá', numero: 3, imagem: '🌴' },
+            { estado: 'Amazonas', capital: 'Manaus', numero: 4, imagem: '🚤' },
+            { estado: 'Bahia', capital: 'Salvador', numero: 5, imagem: '🏛️' },
+            { estado: 'Ceará', capital: 'Fortaleza', numero: 6, imagem: '🏜️' },
+            { estado: 'Distrito Federal', capital: 'Brasília', numero: 7, imagem: '🏛️' },
+            { estado: 'Espírito Santo', capital: 'Vitória', numero: 8, imagem: '🏖️' },
+            { estado: 'Goiás', capital: 'Goiânia', numero: 9, imagem: '🌾' },
+            { estado: 'Maranhão', capital: 'São Luís', numero: 10, imagem: '🏰' },
+            { estado: 'Mato Grosso', capital: 'Cuiabá', numero: 11, imagem: '🐂' },
+            { estado: 'Mato Grosso do Sul', capital: 'Campo Grande', numero: 12, imagem: '🌊' },
+            { estado: 'Minas Gerais', capital: 'Belo Horizonte', numero: 13, imagem: '⛰️' },
+            { estado: 'Pará', capital: 'Belém', numero: 14, imagem: '🌊' },
+            { estado: 'Paraíba', capital: 'João Pessoa', numero: 15, imagem: '🌅' },
+            { estado: 'Paraná', capital: 'Curitiba', numero: 16, imagem: '🌲' },
+            { estado: 'Pernambuco', capital: 'Recife', numero: 17, imagem: '🏖️' },
+            { estado: 'Piauí', capital: 'Teresina', numero: 18, imagem: '🌵' },
+            { estado: 'Rio de Janeiro', capital: 'Rio de Janeiro', numero: 19, imagem: '🏖️' },
+            { estado: 'Rio Grande do Norte', capital: 'Natal', numero: 20, imagem: '🏖️' },
+            { estado: 'Rio Grande do Sul', capital: 'Porto Alegre', numero: 21, imagem: '🍇' },
+            { estado: 'Rondônia', capital: 'Porto Velho', numero: 22, imagem: '🌳' },
+            { estado: 'Roraima', capital: 'Boa Vista', numero: 23, imagem: '🏔️' },
+            { estado: 'Santa Catarina', capital: 'Florianópolis', numero: 24, imagem: '🏖️' },
+            { estado: 'São Paulo', capital: 'São Paulo', numero: 25, imagem: '🏙️' },
+            { estado: 'Sergipe', capital: 'Aracaju', numero: 26, imagem: '🌊' },
+            { estado: 'Tocantins', capital: 'Palmas', numero: 27, imagem: '🌅' }
+        ];
+
+        // Associações números-imagens para memorização
+        const numeroImagens = {
+            1: '🚤', // Barco - Manaus/Amazonas
+            2: '🏖️', // Praia - Maceió/Alagoas
+            3: '🌴', // Coqueiro - Macapá/Amapá
+            4: '🌳', // Floresta - Rio Branco/Acre
+            5: '🏛️', // Monumento - Salvador/Bahia
+            6: '🏜️', // Dunas - Fortaleza/Ceará
+            7: '🏛️', // Congresso - Brasília/DF
+            8: '🏖️', // Praia - Vitória/Espírito Santo
+            9: '🌾', // Plantio - Goiânia/Goiás
+            10: '🏰', // Fortaleza - São Luís/Maranhão
+            11: '🐂', // Gado - Cuiabá/Mato Grosso
+            12: '🌊', // Rio - Campo Grande/Mato Grosso do Sul
+            13: '⛰️', // Montanha - Belo Horizonte/Minas Gerais
+            14: '🌊', // Baía - Belém/Pará
+            15: '🌅', // Nascer do sol - João Pessoa/Paraíba
+            16: '🌲', // Pinheiral - Curitiba/Paraná
+            17: '🏖️', // Recife - Recife/Pernambuco
+            18: '🌵', // Cacto - Teresina/Piauí
+            19: '🏖️', // Cristo - Rio de Janeiro
+            20: '🏖️', // Dunas - Natal/Rio Grande do Norte
+            21: '🍇', // Uva - Porto Alegre/Rio Grande do Sul
+            22: '🌳', // Floresta - Porto Velho/Rondônia
+            23: '🏔️', // Monte Roraima - Boa Vista/Roraima
+            24: '🏖️', // Ilha - Florianópolis/Santa Catarina
+            25: '🏙️', // Arranha-céus - São Paulo
+            26: '🌊', // Estuário - Aracaju/Sergipe
+            27: '🌅', // Cerrado - Palmas/Tocantins
+        };
+
+        let estadoAtual = null;
+        let pontuacao = 0;
+        let estadoIndex = 0;
+        let tentativas = 0;
+        let faseAtual = 1; // 1: escolher capital, 2: ver capital, 3: ver número
+
+        // Embaralhar array
+        function embaralhar(array) {
+            const novoArray = [...array];
+            for (let i = novoArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [novoArray[i], novoArray[j]] = [novoArray[j], novoArray[i]];
+            }
+            return novoArray;
+        }
+
+        // Iniciar jogo
+        function iniciarJogo() {
+            estadoIndex = 0;
+            pontuacao = 0;
+            atualizarPontuacao();
+            mostrarEstado();
+        }
+
+        // Mostrar estado atual
+        function mostrarEstado() {
+            if (estadoIndex >= estadosCapitais.length) {
+                mostrarFimDeJogo();
+                return;
+            }
+
+            estadoAtual = estadosCapitais[estadoIndex];
+            faseAtual = 1;
+            
+            document.getElementById('progresso').textContent = estadoIndex + 1;
+            document.getElementById('estado-nome').textContent = estadoAtual.estado;
+            
+            // Criar opções de capitais
+            const opcoesContainer = document.getElementById('opcoes-container');
+            opcoesContainer.innerHTML = '';
+            
+            // Pegar 3 capitais erradas aleatórias
+            const capitaisErradas = estadosCapitais
+                .filter(e => e.capital !== estadoAtual.capital)
+                .map(e => e.capital)
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 3);
+            
+            // Criar array com a capital correta e as erradas
+            const todasCapitais = [estadoAtual.capital, ...capitaisErradas];
+            const capitaisEmbaralhadas = embaralhar(todasCapitais);
+            
+            capitaisEmbaralhadas.forEach(capital => {
+                const botao = document.createElement('button');
+                botao.className = 'opcao';
+                botao.textContent = capital;
+                botao.onclick = () => verificarResposta(capital);
+                opcoesContainer.appendChild(botao);
+            });
+            
+            // Resetar carta
+            document.getElementById('carta').classList.remove('flipped');
+            document.getElementById('mensagem').style.display = 'none';
+            document.getElementById('btn-continuar').style.display = 'none';
+        }
+
+        // Verificar resposta
+        function verificarResposta(capitalEscolhida) {
+            const botoes = document.querySelectorAll('.opcao');
+            botoes.forEach(botao => {
+                botao.disabled = true;
+                if (botao.textContent === estadoAtual.capital) {
+                    botao.classList.add('correct');
+                } else if (botao.textContent === capitalEscolhida && capitalEscolhida !== estadoAtual.capital) {
+                    botao.classList.add('wrong');
+                }
+            });
+
+            const mensagem = document.getElementById('mensagem');
+            if (capitalEscolhida === estadoAtual.capital) {
+                mensagem.textContent = '✅ Correto! Agora veja a capital e sua imagem.';
+                mensagem.className = 'mensagem acerto';
+                pontuacao += 10;
+                faseAtual = 2;
+                setTimeout(mostrarCapital, 2000);
+            } else {
+                mensagem.textContent = '❌ Você errou! Tente novamente.';
+                mensagem.className = 'mensagem erro';
+                // Não avança, permite tentar novamente
+                setTimeout(() => {
+                    // Reabilitar os botões para nova tentativa
+                    botoes.forEach(botao => {
+                        botao.disabled = false;
+                        botao.classList.remove('wrong');
+                    });
+                    mensagem.style.display = 'none';
+                }, 2000);
+            }
+            mensagem.style.display = 'block';
+            atualizarPontuacao();
+        }
+
+        // Mostrar capital com imagem
+        function mostrarCapital() {
+            const cartaVerso = document.getElementById('carta-verso');
+            cartaVerso.innerHTML = `
+                <div class="capital-info">
+                    <div class="capital-nome">${estadoAtual.capital}</div>
+                    <div class="capital-imagem">
+                        <div style="font-size: 3em;">${estadoAtual.imagem}</div>
+                    </div>
+                    <div style="text-align: center; color: #666; font-size: 1.1em;">
+                        Capital do estado de ${estadoAtual.estado}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('carta').classList.add('flipped');
+            
+            // Após mostrar a capital, automaticamente mostrar o número associado
+            setTimeout(() => {
+                mostrarNumero();
+            }, 2000);
+        }
+
+        // Mostrar número associado
+        function mostrarNumero() {
+            const cartaVerso = document.getElementById('carta-verso');
+            const numeroImagem = numeroImagens[estadoAtual.numero];
+            
+            cartaVerso.innerHTML = `
+                <div class="capital-info">
+                    <div class="associacao">Número associado: ${estadoAtual.numero}</div>
+                    <div class="numero-imagem">${numeroImagem}</div>
+                    <div style="text-align: center; color: #666; font-size: 1.1em;">
+                        ${estadoAtual.estado} = ${estadoAtual.numero} = ${numeroImagem}
+                    </div>
+                </div>
+            `;
+            
+            // Após mostrar o número, automaticamente ir para o próximo estado após 3 segundos
+            setTimeout(() => {
+                proximoEstado();
+            }, 3000);
+        }
+
+        // Próximo estado
+        function proximoEstado() {
+            estadoIndex++;
+            // Esconder o botão de continuar antes de mostrar o próximo estado
+            document.getElementById('btn-continuar').style.display = 'none';
+            mostrarEstado();
+        }
+
+        // Atualizar pontuação
+        function atualizarPontuacao() {
+            document.getElementById('pontuacao').textContent = pontuacao;
+        }
+
+        // Mostrar fim de jogo
+        function mostrarFimDeJogo() {
+            const container = document.querySelector('.container');
+            container.innerHTML = `
+                <h1>🎉 Parabéns!</h1>
+                <div style="text-align: center; background: rgba(255,255,255,0.9); padding: 40px; border-radius: 15px; margin: 20px;">
+                    <h2 style="color: #333; margin-bottom: 20px;">Você completou o jogo!</h2>
+                    <p style="font-size: 1.5em; color: #666; margin-bottom: 20px;">Pontuação final: <strong>${pontuacao}</strong> pontos</p>
+                    <p style="font-size: 1.2em; color: #666; margin-bottom: 30px;">Você memorizou todos os estados, capitais e suas associações!</p>
+                    <button class="btn-continuar" onclick="iniciarJogo()">Jogar Novamente</button>
+                </div>
+            `;
+        }
+
+        // Iniciar o jogo quando a página carregar
+        window.onload = iniciarJogo;
+    </script>
+</body>
+</html>

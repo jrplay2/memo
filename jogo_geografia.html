@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Geografia - Quiz Educativo</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: linear-gradient(135deg,#74b9ff,#0984e3); min-height:100vh; margin:0; padding:20px; display:flex; flex-direction:column; align-items:center; }
+    .game-header { color:#fff; text-align:center; margin-bottom:16px; }
+    .game-title { font-size:2em; margin:4px 0; }
+    .controls { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-bottom:14px; }
+    .btn { border:none; border-radius:20px; padding:10px 16px; font-weight:bold; cursor:pointer; }
+    .start { background:#00b894; color:#fff; } .back { background:#636e72; color:#fff; }
+    .timer { background:rgba(255,255,255,0.2); color:#fff; padding:8px 14px; border-radius:20px; font-weight:bold; }
+    .cards { display:flex; gap:18px; flex-wrap:wrap; justify-content:center; perspective:1000px; margin-bottom:16px; }
+    .card { width:240px; height:300px; position:relative; transform-style:preserve-3d; transition:transform .6s; }
+    .card.flipped { transform: rotateY(180deg); }
+    .face { position:absolute; inset:0; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:bold; backface-visibility:hidden; box-shadow:0 8px 20px rgba(0,0,0,.2); }
+    .front { background:linear-gradient(135deg,#ddeafe,#a5b4fc); color:#1e3a8a; }
+    .back  { background:linear-gradient(135deg,#fff3c4,#f59f00); color:#7c2d12; transform:rotateY(180deg); padding:16px; text-align:center; }
+    .question-box { background:#fff; border-radius:14px; padding:18px; width:100%; max-width:750px; box-shadow:0 8px 24px rgba(0,0,0,.2); }
+    .q-text { font-size:1.1em; color:#2d3436; margin:10px 0 14px; }
+    .opts { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .opt { background:#f8f9fa; border:2px solid #dee2e6; padding:12px; border-radius:10px; cursor:pointer; text-align:left; }
+    .opt.correct { background:#d4edda; border-color:#28a745; color:#155724; }
+    .opt.incorrect { background:#f8d7da; border-color:#dc3545; color:#721c24; }
+    .image-content img { max-width:100%; height:auto; display:none; border-radius:8px; }
+    .help-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; }
+    .help-content { background:#fff; margin:5% auto; padding:20px; border-radius:12px; width:90%; max-width:650px; max-height:80vh; overflow:auto; position:relative; }
+    .close-help { position:absolute; right:12px; top:8px; font-size:26px; cursor:pointer; }
+    @media (max-width:720px){ .opts{ grid-template-columns:1fr; } .cards{ flex-direction:column; } }
+  </style>
+</head>
+<body>
+  <div class="game-header">
+    <h1 class="game-title">🌍 Quiz de Geografia</h1>
+    <p>Localização, paralelos e meridianos, Linha do Equador, relevo e escala cartográfica</p>
+  </div>
+  <div class="controls">
+    <div class="timer" id="timer">⏱️ 00:00</div>
+    <button class="btn start" id="startBtn" onclick="startGame()">Iniciar Quiz</button>
+    <button class="btn back" onclick="goBack()">Voltar aos Temas</button>
+    <button class="btn" onclick="showHelp()">Ajuda</button>
+  </div>
+
+  <div class="cards">
+    <div class="card" id="questionCard">
+      <div class="face front">❓ Pergunta</div>
+      <div class="face back"><div id="questionText">Clique em "Iniciar Quiz" para começar!</div></div>
+    </div>
+    <div class="card" id="answerCard">
+      <div class="face front">💡 Resposta</div>
+      <div class="face back"><div id="answerText">A resposta aparecerá aqui</div></div>
+    </div>
+    <div class="card flipped" id="imageCard">
+      <div class="face front">🗺️ Conceito</div>
+      <div class="face back">
+        <div class="image-content">
+          <img id="themeImage" alt="Imagem educativa" />
+          <div id="imageText">Referência aparecerá aqui</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-box" id="qBox" style="display:none;">
+    <h3 id="qNumber">Questão 1</h3>
+    <div class="q-text" id="qTextMain"></div>
+    <div class="opts">
+      <button class="opt" id="optA" onclick="selectAnswer('A')"></button>
+      <button class="opt" id="optB" onclick="selectAnswer('B')"></button>
+      <button class="opt" id="optC" onclick="selectAnswer('C')"></button>
+      <button class="opt" id="optD" onclick="selectAnswer('D')"></button>
+    </div>
+  </div>
+
+  <div id="helpModal" class="help-modal">
+    <div class="help-content">
+      <span class="close-help" onclick="closeHelp()">&times;</span>
+      <h3>Ajuda - Questão <span id="helpQNum"></span></h3>
+      <div id="helpText"></div>
+    </div>
+  </div>
+
+  <!-- Estatísticas do Jogo -->
+  <div class="question-box" id="statsBox">
+    <h3>📊 Estatísticas do Jogo</h3>
+    <div id="statsContent">Clique em "Iniciar Quiz" para começar!</div>
+  </div>
+
+  <script>
+    let currentIndex = 0, startTime = 0, tInt, pool = [], totalQuestions = 0;
+    // Estatísticas e ranking
+    let gameStartTime = 0;
+    let gameStats = { questionsAnswered: 0, correctAnswers: 0, totalTime: 0 };
+    let gameHistory = JSON.parse(localStorage.getItem('geografiaGameHistory') || '[]');
+    const questions = [
+      {
+        question: 'Para que servem as coordenadas geográficas (latitude e longitude)?',
+        options: ['Para medir a temperatura e a umidade de um lugar.', 'Para localizar com precisão qualquer ponto na superfície da Terra.', 'Para definir os fusos horários de cada país.', 'Para medir a altitude das montanhas e a profundidade dos oceanos.'],
+        correct: 1,
+        explanation: 'As coordenadas geográficas funcionam como um "endereço" do planeta. A latitude (medida a partir da Linha do Equador) indica Norte ou Sul; a longitude (medida a partir do Meridiano de Greenwich) indica Leste ou Oeste. Juntas, permitem localizar com precisão qualquer ponto na Terra.',
+        answer: 'Para localizar com precisão qualquer ponto na superfície da Terra.',
+        reference: 'Latitude (Equador) + Longitude (Greenwich) = localização exata',
+        image: 'https://api.iconify.design/mdi/map-marker.svg?height=256&color=%230066cc',
+        imageAlt: 'Coordenadas: marcador de mapa'
+      },
+      {
+        question: 'Qual a principal diferença entre paralelos e meridianos?',
+        options: ['Paralelos são verticais e meridianos são horizontais.', 'Paralelos medem a distância em quilômetros e meridianos em milhas.', 'Paralelos são linhas horizontais que medem a latitude, e meridianos são linhas verticais que medem a longitude.', 'Paralelos definem o clima e meridianos definem o relevo.'],
+        correct: 2,
+        explanation: 'Paralelos são círculos imaginários horizontais (deitados) como a Linha do Equador, e indicam a latitude. Meridianos são semicírculos verticais (em pé), como o de Greenwich, e indicam a longitude.',
+        answer: 'Paralelos (horizontais) medem a latitude; meridianos (verticais) medem a longitude.',
+        reference: 'Paralelos = latitude | Meridianos = longitude',
+        image: 'https://api.iconify.design/mdi/earth.svg?height=256&color=%230066cc',
+        imageAlt: 'Globo terrestre'
+      },
+      {
+        question: 'Qual é a principal função da Linha do Equador?',
+        options: ['Separar os continentes da Europa e da África.', 'Marcar o local mais frio do planeta Terra.', 'Definir o começo e o fim de todos os países.', 'Dividir a Terra nos hemisférios Norte e Sul, sendo o marco zero para a contagem da latitude.'],
+        correct: 3,
+        explanation: 'A Linha do Equador é o paralelo de latitude 0°. Ela divide o planeta em Hemisfério Norte e Sul e é a referência inicial para medir a latitude de qualquer ponto.',
+        answer: 'Dividir a Terra em Hemisférios Norte e Sul (latitude 0°).',
+        reference: 'Equador = 0° de latitude (Norte/Sul)',
+        image: 'https://api.iconify.design/mdi/earth.svg?height=256&color=%230066cc',
+        imageAlt: 'Globo com linha central imaginária'
+      },
+      {
+        question: 'No estudo do relevo, qual a característica que melhor define um planalto?',
+        options: ['Áreas muito baixas e planas com acúmulo de sedimentos.', 'Maiores elevações da Terra com picos pontiagudos.', 'Áreas de altitude elevada com topo mais ou menos plano, onde a erosão é maior que o acúmulo.', 'Vales profundos criados por rios ou geleiras.'],
+        correct: 2,
+        explanation: 'Planalto lembra "plano" e "alto": são áreas mais antigas e elevadas, com topos relativamente planos, onde a ação de desgaste (erosão) predomina sobre o acúmulo de sedimentos.',
+        answer: 'Áreas altas com topo plano; predomina a erosão.',
+        reference: 'Planalto: topo plano e altitude elevada (erosão > acúmulo)',
+        image: 'https://api.iconify.design/mdi/terrain.svg?height=256&color=%230066cc',
+        imageAlt: 'Terreno/elevação'
+      },
+      {
+        question: 'O que a escala de um mapa indica?',
+        options: ['O número de cidades representadas no mapa.', 'O tipo de clima da região mostrada.', 'Quantas vezes a área real foi "reduzida" para caber no papel.', 'A data em que o mapa foi desenhado.'],
+        correct: 2,
+        explanation: 'A escala mostra a relação entre as medidas do mapa e as medidas reais. Por exemplo, 1:100.000 significa que 1 cm no mapa corresponde a 1 km na realidade. Sem escala, não é possível medir distâncias reais.',
+        answer: 'A proporção de redução da área real para o mapa.',
+        reference: 'Ex.: 1:100.000 → 1 cm no mapa = 1 km real',
+        image: 'https://api.iconify.design/mdi/ruler.svg?height=256&color=%230066cc',
+        imageAlt: 'Régua/escala'
+      }
+    ];
+
+    function startGame(){
+      pool = questions.slice(); totalQuestions = pool.length; currentIndex = 0;
+      // Reset das estatísticas
+      gameStartTime = Date.now();
+      gameStats = { questionsAnswered: 0, correctAnswers: 0, totalTime: 0 };
+      document.getElementById('statsContent').textContent = 'Jogo iniciado!';
+      document.getElementById('qBox').style.display = 'block';
+      document.getElementById('startBtn').textContent = 'Iniciar Quiz';
+      document.getElementById('startBtn').style.display = 'none';
+      document.getElementById('questionCard').classList.remove('flipped');
+      document.getElementById('answerCard').classList.remove('flipped');
+      document.getElementById('imageCard').classList.add('flipped');
+      showQuestion(); startTimer();
+    }
+
+    function showQuestion(){
+      if(pool.length === 0){ endGame(); return; }
+      const q = pool[currentIndex];
+      // reset answer card
+      document.getElementById('answerCard').classList.remove('flipped');
+      // reset image card content
+      const img = document.getElementById('themeImage');
+      const txt = document.getElementById('imageText');
+      img.style.display = 'none'; img.src = ''; txt.style.display='block'; txt.textContent = 'Referência aparecerá aqui';
+      if(q.image && /^https?:\/\//.test(q.image)){
+        txt.style.display='none'; img.style.display='block'; img.alt = q.imageAlt || 'Imagem educativa';
+        img.onerror = () => { img.style.display='none'; txt.style.display='block'; txt.textContent = q.reference || 'Referência'; };
+        img.onload  = () => { txt.style.display='none'; img.style.display='block'; };
+        img.src = q.image;
+      } else {
+        txt.textContent = q.reference || 'Referência';
+      }
+      // show question
+      setTimeout(()=>{ document.getElementById('questionCard').classList.add('flipped'); document.getElementById('questionText').textContent = q.question; }, 200);
+      const shown = (totalQuestions - pool.length) + 1;
+      document.getElementById('qNumber').textContent = `Questão ${shown}`;
+      document.getElementById('qTextMain').textContent = q.question;
+      ['A','B','C','D'].forEach((l,i)=>{ const btn = document.getElementById('opt'+l); btn.classList.remove('correct','incorrect'); btn.disabled=false; btn.textContent = `${String.fromCharCode(97+i)}) ${q.options[i]}`; });
+    }
+
+    function selectAnswer(letter){
+      if(pool.length === 0){ endGame(); return; }
+      const q = pool[currentIndex];
+      const idx = letter.charCodeAt(0) - 65; const isCorrect = idx === q.correct;
+      // calcular tempo da resposta e parar timer
+      const timeSpent = Date.now() - startTime;
+      clearInterval(tInt);
+      ['A','B','C','D'].forEach(l=>document.getElementById('opt'+l).disabled=true);
+      const sel = document.getElementById('opt'+letter); sel.classList.add(isCorrect?'correct':'incorrect');
+      if(isCorrect){
+        showCorrect(q);
+        // atualizar estatísticas
+        gameStats.correctAnswers++;
+        setTimeout(()=>{
+          // remove a questão acertada
+          pool.splice(currentIndex,1);
+          if(pool.length === 0){ endGame(); return; }
+          // manter índice válido após remoção
+          currentIndex = currentIndex % pool.length;
+          showQuestion(); startTimer(true);
+        }, 2000);
+      } else {
+        showError();
+        setTimeout(()=>{ currentIndex = (currentIndex+1) % pool.length; showQuestion(); startTimer(true); }, 1500);
+      }
+      // atualizar estatísticas gerais
+      gameStats.questionsAnswered++;
+      gameStats.totalTime += timeSpent;
+      updateGameStats(timeSpent, isCorrect);
+    }
+
+    function showCorrect(q){
+      setTimeout(()=>{ document.getElementById('answerCard').classList.add('flipped'); document.getElementById('answerText').textContent = q.answer; }, 600);
+    }
+
+    function showError(){
+      const m = document.createElement('div'); m.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#ff4444;color:#fff;padding:14px;border-radius:10px;z-index:1000;'; m.textContent='❌ Resposta incorreta!'; document.body.appendChild(m); setTimeout(()=>document.body.removeChild(m),1200);
+    }
+
+    function showHelp(){
+      const q = pool.length ? pool[currentIndex] : null; if(!q){ return; }
+      document.getElementById('helpQNum').textContent = (totalQuestions - pool.length) + 1;
+      // Mostrar APENAS a explicação, sem revelar a resposta correta
+      document.getElementById('helpText').innerHTML = `<p><strong>Explicação:</strong> ${q.explanation}</p>${q.reference ? `<p><em>Referência:</em> ${q.reference}</p>` : ''}`;
+      document.getElementById('helpModal').style.display='block';
+    }
+
+    function closeHelp(){ document.getElementById('helpModal').style.display='none'; }
+
+    function startTimer(reset){ if(reset){ clearInterval(tInt); } startTime = Date.now(); clearInterval(tInt); tInt = setInterval(()=>{ const el = Date.now()-startTime; const s = Math.floor(el/1000); const ms = Math.floor((el%1000)/100); document.getElementById('timer').textContent = `⏱️ ${s.toString().padStart(2,'0')}:${ms}`; }, 100); }
+    function goBack(){ try{ window.close(); }catch(e){} setTimeout(()=>{ window.location.href='index_temas.html'; },100); }
+    function endGame(){
+      clearInterval(tInt);
+      // calcular métricas finais
+      const totalGameTimeSeconds = Math.floor((Date.now() - gameStartTime) / 1000);
+      const accuracy = gameStats.questionsAnswered > 0 ? (gameStats.correctAnswers / gameStats.questionsAnswered * 100).toFixed(1) : '0.0';
+      // salvar histórico
+      const gameResult = { date: new Date().toLocaleDateString('pt-BR'), time: new Date().toLocaleTimeString('pt-BR'), totalTime: totalGameTimeSeconds, accuracy: parseFloat(accuracy), questionsAnswered: gameStats.questionsAnswered };
+      gameHistory.unshift(gameResult);
+      if(gameHistory.length > 5){ gameHistory = gameHistory.slice(0,5); }
+      localStorage.setItem('geografiaGameHistory', JSON.stringify(gameHistory));
+      // ranking por menor tempo
+      const sorted = [...gameHistory].sort((a,b)=> a.totalTime - b.totalTime);
+      const currentPosition = sorted.findIndex(g => g.totalTime === totalGameTimeSeconds && g.accuracy === parseFloat(accuracy)) + 1;
+      // atualizar UI final
+      document.getElementById('qBox').style.display = 'none';
+      document.getElementById('questionCard').classList.add('flipped');
+      document.getElementById('questionText').textContent = 'Parabéns! Você concluiu todas as questões de Geografia.';
+      document.getElementById('answerCard').classList.remove('flipped');
+      document.getElementById('answerText').textContent = 'Clique em Reiniciar para jogar novamente.';
+      const historyHtml = gameHistory.map((g, i) => {
+        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '🏅';
+        const highlight = i === 0 ? 'style="background:#ffffcc;font-weight:bold;"' : '';
+        return `<div ${highlight}>${medal} ${formatTime(g.totalTime)} - ${g.accuracy}% - ${g.date}</div>`;
+      }).join('');
+      document.getElementById('statsContent').innerHTML = `
+        <div style="font-size:1.2em;margin-bottom:10px;">📊 Resultados Finais</div>
+        <div>⏱️ Tempo total: ${formatTime(totalGameTimeSeconds)}</div>
+        <div>✅ Total de tentativas: ${gameStats.questionsAnswered}</div>
+        <div>🎯 Precisão: ${accuracy}%</div>
+        <div>📈 Posição no ranking: ${currentPosition > 0 ? currentPosition + 'º lugar' : '—'}</div>
+        <br>
+        <div style="font-size:1.1em;margin-bottom:6px;">🏆 Histórico (últimas 5):</div>
+        ${historyHtml || '<div>Nenhum histórico anterior</div>'}
+      `;
+      const startBtn = document.getElementById('startBtn'); startBtn.textContent = 'Reiniciar Quiz'; startBtn.style.display = 'inline-block';
+    }
+    function formatTime(seconds){ const m = Math.floor(seconds/60); const s = seconds%60; return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; }
+    function updateGameStats(timeSpent, isCorrect){
+      const accuracy = gameStats.questionsAnswered > 0 ? (gameStats.correctAnswers / gameStats.questionsAnswered * 100).toFixed(1) : '0.0';
+      const shown = (totalQuestions - pool.length);
+      const totalRemaining = pool.length;
+      const gameTimeElapsed = Math.floor((Date.now() - gameStartTime) / 1000);
+      document.getElementById('statsContent').innerHTML = `
+        <div>📝 Questões exibidas: ${shown}/${totalQuestions}</div>
+        <div>❓ Restantes: ${totalRemaining}</div>
+        <div>✅ Acertos: ${gameStats.correctAnswers}/${gameStats.questionsAnswered}</div>
+        <div>🎯 Precisão: ${accuracy}%</div>
+        <div>⏱️ Tempo de jogo: ${formatTime(gameTimeElapsed)}</div>
+        <div>🕐 Última resposta: ${(timeSpent/1000).toFixed(1)}s ${isCorrect ? '✅' : '❌'}</div>
+      `;
+    }
+  </script>
+</body>
+</html>

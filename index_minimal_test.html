@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Jogos Educativos - Teste Minimal</title>
+    <style>
+        /* Reset & estilos gerais */
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Comic Sans MS', cursive, sans-serif; }
+        body { background-color: #e6f3ff; color: #333; padding: 20px; }
+        .hidden { display:none; }
+        .container { max-width: 900px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        h1 { text-align: center; margin-bottom: 20px; color: #0066cc; }
+        button { 
+            padding: 10px 20px; 
+            margin: 5px; 
+            cursor: pointer; 
+            background-color: #4CAF50; 
+            color: white; 
+            border: none; 
+            border-radius: 5px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+        label { margin-right: 10px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Jogos Educativos</h1>
+        <div class="game-selection">
+            <button id="memorize-btn">Memorizar com carta</button>
+            <button id="memory-btn">Jogo da Memória</button>
+            <button id="multiplication-btn">Jogo da Multiplicação</button>
+            <button id="division-btn">Jogo da Divisão</button>
+            <button id="addition-btn">Jogo da Adição</button>
+        </div>
+        
+        <!-- Jogo da Adição -->
+        <div id="addition-game" class="hidden">
+            <h2>Jogo da Adição</h2>
+            <div class="game-options">
+                <div class="number-selection">
+                    <h3>Selecione os números para praticar:</h3>
+                    <div id="number-buttons"></div>
+                </div>
+                
+                <div class="mode-selection">
+                    <div class="option-group">
+                        <input type="checkbox" id="random-mode">
+                        <label for="random-mode">Modo Aleatório</label>
+                    </div>
+                    <div class="option-group">
+                        <input type="checkbox" id="custom-mode">
+                        <label for="custom-mode">Modo Personalizado</label>
+                    </div>
+                </div>
+                
+                <div class="game-controls">
+                    <button id="start-addition">Iniciar Jogo</button>
+                    <button id="back-add">Voltar</button>
+                </div>
+            </div>
+            
+            <div id="addition-play" class="hidden">
+                <div id="score-display">Pontuação: 0/0 (0%)</div>
+                <div id="question-display"></div>
+                <input type="number" id="user-answer" placeholder="Digite sua resposta">
+                <button id="check-answer">Verificar</button>
+                
+                <div class="card-piles">
+                    <div class="pile">
+                        <h4>Pergunta</h4>
+                        <div id="question-card" class="card">
+                            <div class="card-front">?</div>
+                            <div class="card-back"><div></div></div>
+                        </div>
+                    </div>
+                    
+                    <div class="pile">
+                        <h4>Resposta</h4>
+                        <div id="answer-card" class="card">
+                            <div class="card-front">?</div>
+                            <div class="card-back"><div></div></div>
+                        </div>
+                    </div>
+                    
+                    <div class="pile">
+                        <h4>Imagem</h4>
+                        <div id="image-card" class="card">
+                            <div class="card-front">?</div>
+                            <div class="card-back">
+                                <img src="" alt="">
+                                <div class="card-code"></div>
+                                <div class="card-name"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('🚀 Script iniciado - Index Minimal Test');
+        
+        // Função para ocultar todos os jogos
+        function hideAllGames() {
+            console.log('🔄 Executando hideAllGames()');
+            const games = ['memorize-game', 'memory-game', 'multiplication-game', 'division-game', 'addition-game', 'addition-play'];
+            games.forEach(gameId => {
+                const game = document.getElementById(gameId);
+                if (game) {
+                    game.classList.add('hidden');
+                }
+            });
+            
+            const gameSelection = document.querySelector('.game-selection');
+            if (gameSelection) {
+                gameSelection.classList.remove('hidden');
+            }
+        }
+
+        // Função para inicializar o jogo de adição
+        function initializeAdditionGame() {
+            console.log('🎮 Executando initializeAdditionGame()');
+            
+            // Criar botões de números 0-10
+            const numberButtons = document.getElementById('number-buttons');
+            if (numberButtons) {
+                numberButtons.innerHTML = '';
+                for (let i = 0; i <= 10; i++) {
+                    const button = document.createElement('button');
+                    button.textContent = i;
+                    button.classList.add('number-btn');
+                    button.dataset.number = i;
+                    numberButtons.appendChild(button);
+                }
+                console.log('✅ Botões de números criados');
+            }
+            
+            console.log('✅ Jogo de adição inicializado');
+        }
+
+        // Inicializar quando o DOM estiver carregado
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 DOM carregado - iniciando configuração');
+            
+            // Verificar se todos os elementos críticos existem
+            const criticalElements = {
+                'addition-btn': document.getElementById('addition-btn'),
+                'addition-game': document.getElementById('addition-game'),
+                'game-selection': document.querySelector('.game-selection')
+            };
+            
+            Object.entries(criticalElements).forEach(([name, element]) => {
+                console.log(`🔍 ${name}: ${element ? 'ENCONTRADO' : 'NÃO ENCONTRADO'}`);
+            });
+            
+            // Configurar botão de adição
+            const additionBtn = document.getElementById('addition-btn');
+            console.log('🔍 Botão de adição encontrado:', additionBtn ? 'SIM' : 'NÃO');
+            
+            if (additionBtn) {
+                additionBtn.addEventListener('click', function() {
+                    console.log('🖱️ BOTÃO DE ADIÇÃO CLICADO!');
+                    try {
+                        hideAllGames();
+                        console.log('✅ hideAllGames() executado');
+                        
+                        const additionGame = document.getElementById('addition-game');
+                        console.log('🔍 addition-game encontrado:', additionGame ? 'SIM' : 'NÃO');
+                        
+                        if (additionGame) {
+                            additionGame.classList.remove('hidden');
+                            console.log('✅ addition-game exibido');
+                        }
+                        
+                        initializeAdditionGame();
+                        console.log('✅ initializeAdditionGame() executado');
+                        console.log('🎉 SUCESSO TOTAL! Botão de adição funcionou!');
+                        
+                    } catch (error) {
+                        console.error('❌ ERRO no botão de adição:', error);
+                    }
+                });
+                console.log('✅ Event listener do botão de adição configurado');
+            } else {
+                console.error('❌ ERRO: Botão de adição não encontrado!');
+            }
+            
+            // Botão voltar do jogo de adição
+            const backAddBtn = document.getElementById('back-add');
+            if (backAddBtn) {
+                backAddBtn.addEventListener('click', function() {
+                    console.log('🔙 Botão back-add clicado');
+                    hideAllGames();
+                });
+                console.log('✅ Event listener back-add configurado');
+            }
+            
+            console.log('🎯 Configuração completa! Teste o botão de adição.');
+        });
+        
+        console.log('📝 Script finalizado - aguardando DOM');
+    </script>
+</body>
+</html>

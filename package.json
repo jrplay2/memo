@@ -1,0 +1,17 @@
+{
+  "name": "jogo-educativo",
+  "version": "1.0.0",
+  "description": "Jogo educativo interativo",
+  "main": "index.html",
+  "scripts": {
+    "start": "Start-Process \"index.html\"",
+    "dev": "Start-Process \"index.html\"",
+    "serve": "npx http-server . -p 3000 -o"
+  },
+  "dependencies": {
+    "sharp": "^0.34.2"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
