@@ -327,7 +327,8 @@
         let pontuacao = 0;
         let estadoIndex = 0;
         let tentativas = 0;
-        let faseAtual = 1; // 1: escolher capital, 2: ver capital, 3: ver número
+        let faseAtual = 1; // 1: escolher capital, 2: ver capital
+        let estadosEmbaralhados = []; // Array para guardar estados em ordem aleatória
 
         // Embaralhar array
         function embaralhar(array) {
@@ -343,18 +344,20 @@
         function iniciarJogo() {
             estadoIndex = 0;
             pontuacao = 0;
+            // Embaralhar os estados para ordem aleatória
+            estadosEmbaralhados = embaralhar(estadosCapitais);
             atualizarPontuacao();
             mostrarEstado();
         }
 
         // Mostrar estado atual
         function mostrarEstado() {
-            if (estadoIndex >= estadosCapitais.length) {
+            if (estadoIndex >= estadosEmbaralhados.length) {
                 mostrarFimDeJogo();
                 return;
             }
 
-            estadoAtual = estadosCapitais[estadoIndex];
+            estadoAtual = estadosEmbaralhados[estadoIndex];
             faseAtual = 1;
             
             document.getElementById('progresso').textContent = estadoIndex + 1;
@@ -365,7 +368,7 @@
             opcoesContainer.innerHTML = '';
             
             // Pegar 3 capitais erradas aleatórias
-            const capitaisErradas = estadosCapitais
+            const capitaisErradas = estadosEmbaralhados
                 .filter(e => e.capital !== estadoAtual.capital)
                 .map(e => e.capital)
                 .sort(() => Math.random() - 0.5)
@@ -403,7 +406,7 @@
 
             const mensagem = document.getElementById('mensagem');
             if (capitalEscolhida === estadoAtual.capital) {
-                mensagem.textContent = '✅ Correto! Agora veja a capital e sua imagem.';
+                mensagem.textContent = '✅ Correto! Próximo estado...';
                 mensagem.className = 'mensagem acerto';
                 pontuacao += 10;
                 faseAtual = 2;
@@ -442,32 +445,13 @@
             
             document.getElementById('carta').classList.add('flipped');
             
-            // Após mostrar a capital, automaticamente mostrar o número associado
-            setTimeout(() => {
-                mostrarNumero();
-            }, 2000);
-        }
-
-        // Mostrar número associado
-        function mostrarNumero() {
-            const cartaVerso = document.getElementById('carta-verso');
-            const numeroImagem = numeroImagens[estadoAtual.numero];
-            
-            cartaVerso.innerHTML = `
-                <div class="capital-info">
-                    <div class="associacao">Número associado: ${estadoAtual.numero}</div>
-                    <div class="numero-imagem">${numeroImagem}</div>
-                    <div style="text-align: center; color: #666; font-size: 1.1em;">
-                        ${estadoAtual.estado} = ${estadoAtual.numero} = ${numeroImagem}
-                    </div>
-                </div>
-            `;
-            
-            // Após mostrar o número, automaticamente ir para o próximo estado após 3 segundos
+            // Após mostrar a capital, automaticamente ir para o próximo estado
             setTimeout(() => {
                 proximoEstado();
             }, 3000);
         }
+
+        // Função removida - não mostra mais números associados
 
         // Próximo estado
         function proximoEstado() {
@@ -490,7 +474,7 @@
                 <div style="text-align: center; background: rgba(255,255,255,0.9); padding: 40px; border-radius: 15px; margin: 20px;">
                     <h2 style="color: #333; margin-bottom: 20px;">Você completou o jogo!</h2>
                     <p style="font-size: 1.5em; color: #666; margin-bottom: 20px;">Pontuação final: <strong>${pontuacao}</strong> pontos</p>
-                    <p style="font-size: 1.2em; color: #666; margin-bottom: 30px;">Você memorizou todos os estados, capitais e suas associações!</p>
+                    <p style="font-size: 1.2em; color: #666; margin-bottom: 30px;">Você memorizou todos os estados e capitais do Brasil!</p>
                     <button class="btn-continuar" onclick="iniciarJogo()">Jogar Novamente</button>
                 </div>
             `;
