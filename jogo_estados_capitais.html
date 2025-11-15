@@ -44,7 +44,7 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        .score, .progress {
+        .score, .progress, .timer {
             font-size: 1.2em;
             font-weight: bold;
             color: #333;
@@ -243,6 +243,7 @@
         <div class="game-info">
             <div class="score">Pontuação: <span id="pontuacao">0</span></div>
             <div class="progress">Progresso: <span id="progresso">1</span>/27</div>
+            <div class="timer">Tempo: <span id="tempo">00:00</span></div>
         </div>
 
         <div class="card-container">
@@ -329,6 +330,8 @@
         let tentativas = 0;
         let faseAtual = 1; // 1: escolher capital, 2: ver capital
         let estadosEmbaralhados = []; // Array para guardar estados em ordem aleatória
+        let tempoInicio = null; // Tempo de início do jogo
+        let tempoTotal = 0; // Tempo total gasto
 
         // Embaralhar array
         function embaralhar(array) {
@@ -340,14 +343,39 @@
             return novoArray;
         }
 
+        // Funções do cronômetro
+        function formatarTempo(segundos) {
+            const minutos = Math.floor(segundos / 60);
+            const segs = segundos % 60;
+            return `${minutos.toString().padStart(2, '0')}:${segs.toString().padStart(2, '0')}`;
+        }
+
+        function atualizarCronometro() {
+            if (!tempoInicio) return;
+            
+            const tempoAtual = Math.floor((Date.now() - tempoInicio) / 1000);
+            document.getElementById('tempo').textContent = formatarTempo(tempoAtual);
+        }
+
         // Iniciar jogo
         function iniciarJogo() {
             estadoIndex = 0;
             pontuacao = 0;
+            tempoInicio = Date.now(); // Iniciar cronômetro
+            tempoTotal = 0;
             // Embaralhar os estados para ordem aleatória
             estadosEmbaralhados = embaralhar(estadosCapitais);
             atualizarPontuacao();
             mostrarEstado();
+            
+            // Atualizar cronômetro a cada segundo
+            const intervalo = setInterval(() => {
+                atualizarCronometro();
+                // Parar o intervalo quando o jogo terminar
+                if (estadoIndex >= estadosEmbaralhados.length) {
+                    clearInterval(intervalo);
+                }
+            }, 1000);
         }
 
         // Mostrar estado atual
@@ -468,12 +496,17 @@
 
         // Mostrar fim de jogo
         function mostrarFimDeJogo() {
+            // Calcular tempo total
+            tempoTotal = Math.floor((Date.now() - tempoInicio) / 1000);
+            const tempoFormatado = formatarTempo(tempoTotal);
+            
             const container = document.querySelector('.container');
             container.innerHTML = `
                 <h1>🎉 Parabéns!</h1>
                 <div style="text-align: center; background: rgba(255,255,255,0.9); padding: 40px; border-radius: 15px; margin: 20px;">
                     <h2 style="color: #333; margin-bottom: 20px;">Você completou o jogo!</h2>
-                    <p style="font-size: 1.5em; color: #666; margin-bottom: 20px;">Pontuação final: <strong>${pontuacao}</strong> pontos</p>
+                    <p style="font-size: 1.5em; color: #666; margin-bottom: 10px;">Pontuação final: <strong>${pontuacao}</strong> pontos</p>
+                    <p style="font-size: 1.3em; color: #2196F3; margin-bottom: 20px;">⏱️ Tempo total: <strong>${tempoFormatado}</strong></p>
                     <p style="font-size: 1.2em; color: #666; margin-bottom: 30px;">Você memorizou todos os estados e capitais do Brasil!</p>
                     <button class="btn-continuar" onclick="iniciarJogo()">Jogar Novamente</button>
                 </div>
