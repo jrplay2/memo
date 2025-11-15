@@ -94,11 +94,14 @@
         }
 
         .estado-nome {
-            font-size: 2em;
+            font-size: 1.8em;
             font-weight: bold;
             color: #333;
             margin-bottom: 30px;
             text-align: center;
+            word-wrap: break-word;
+            max-width: 100%;
+            padding: 0 10px;
         }
 
         .opcoes {
@@ -109,15 +112,21 @@
         }
 
         .opcao {
-            padding: 15px;
+            padding: 12px;
             background: linear-gradient(45deg, #4CAF50, #45a049);
             color: white;
             border: none;
             border-radius: 10px;
-            font-size: 1.1em;
+            font-size: 1em;
             cursor: pointer;
             transition: all 0.3s;
             font-weight: bold;
+            word-wrap: break-word;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .opcao:hover {
@@ -145,10 +154,14 @@
         }
 
         .capital-nome {
-            font-size: 2em;
+            font-size: 1.8em;
             font-weight: bold;
             color: #333;
             margin-bottom: 20px;
+            text-align: center;
+            word-wrap: break-word;
+            max-width: 100%;
+            padding: 0 10px;
         }
 
         .capital-imagem {
@@ -332,6 +345,7 @@
         let estadosEmbaralhados = []; // Array para guardar estados em ordem aleatória
         let tempoInicio = null; // Tempo de início do jogo
         let tempoTotal = 0; // Tempo total gasto
+        let errosTotais = 0; // Contador total de erros
 
         // Embaralhar array
         function embaralhar(array) {
@@ -361,6 +375,7 @@
         function iniciarJogo() {
             estadoIndex = 0;
             pontuacao = 0;
+            errosTotais = 0; // Resetar contador de erros
             tempoInicio = Date.now(); // Iniciar cronômetro
             tempoTotal = 0;
             // Embaralhar os estados para ordem aleatória
@@ -440,6 +455,7 @@
                 faseAtual = 2;
                 setTimeout(mostrarCapital, 2000);
             } else {
+                errosTotais++; // Incrementar contador de erros
                 mensagem.textContent = '❌ Você errou! Tente novamente.';
                 mensagem.className = 'mensagem erro';
                 // Não avança, permite tentar novamente
@@ -506,7 +522,8 @@
                 <div style="text-align: center; background: rgba(255,255,255,0.9); padding: 40px; border-radius: 15px; margin: 20px;">
                     <h2 style="color: #333; margin-bottom: 20px;">Você completou o jogo!</h2>
                     <p style="font-size: 1.5em; color: #666; margin-bottom: 10px;">Pontuação final: <strong>${pontuacao}</strong> pontos</p>
-                    <p style="font-size: 1.3em; color: #2196F3; margin-bottom: 20px;">⏱️ Tempo total: <strong>${tempoFormatado}</strong></p>
+                    <p style="font-size: 1.3em; color: #2196F3; margin-bottom: 10px;">⏱️ Tempo total: <strong>${tempoFormatado}</strong></p>
+                    <p style="font-size: 1.3em; color: #f44336; margin-bottom: 20px;">❌ Erros totais: <strong>${errosTotais}</strong></p>
                     <p style="font-size: 1.2em; color: #666; margin-bottom: 30px;">Você memorizou todos os estados e capitais do Brasil!</p>
                     <button class="btn-continuar" onclick="iniciarJogo()">Jogar Novamente</button>
                 </div>
